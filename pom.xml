@@ -443,29 +443,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-clean-plugin</artifactId>
                     <version>3.0.0</version>
-                    <configuration>
-                        <filesets>
-                            <fileset>
-                                <directory>datastore</directory>
-                            </fileset>
-                            <fileset>
-                                <directory>cromwell-executions</directory>
-                            </fileset>
-                            <fileset>
-                                <directory>cromwell-input</directory>
-                            </fileset>
-                            <fileset>
-                                <directory>cromwell-workflow-logs</directory>
-                            </fileset>
-                            <fileset>
-                                <directory>.</directory>
-                                <includes>
-                                    <include>Cromwell.stderr.txt</include>
-                                    <include>Cromwell.stdout.txt</include>
-                                </includes>
-                            </fileset>
-                        </filesets>
-                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -597,6 +574,8 @@
                             <ignoreNonCompile>true</ignoreNonCompile>
                             <usedDependencies>
                                 <usedDependency>io.swagger:swagger-jersey2-jaxrs</usedDependency>
+                                <usedDependency>io.swagger:swagger-models</usedDependency>
+                                <usedDependency>io.swagger:swagger-jaxrs</usedDependency>
                                 <usedDependency>io.dropwizard:dropwizard-hibernate</usedDependency>
                             </usedDependencies>
                         </configuration>
@@ -740,6 +719,28 @@
                                 <sourceFolder>src/gen/java/main</sourceFolder>
                                 <library>jersey2</library>
                             </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>clean-extra-swagger</id>
+                        <!-- clean up some extra resources since maven plugin above does not seem to respect ignore -->
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                        <configuration>
+                            <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                            <filesets>
+                                <fileset>
+                                  <directory>target/generated-sources/swagger/src/main/java</directory>
+                                </fileset>
+                            </filesets>
                         </configuration>
                     </execution>
                 </executions>
