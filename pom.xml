@@ -589,7 +589,6 @@
                             <usedDependencies>
                                 <usedDependency>io.swagger:swagger-jersey2-jaxrs</usedDependency>
                                 <usedDependency>io.swagger:swagger-models</usedDependency>
-                                <usedDependency>io.swagger:swagger-jaxrs</usedDependency>
                                 <usedDependency>org.apache.derby:derby</usedDependency>
                             </usedDependencies>
                         </configuration>
