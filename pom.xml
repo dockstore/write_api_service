@@ -37,12 +37,13 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <github.url>scm:git:git@github.com:ga4gh/dockstore-support.git</github.url>
         <assertj.version>3.4.1</assertj.version>
-        <junit-version>4.12</junit-version>
+        <junit.version>4.12</junit.version>
         <slf4j.version>1.7.21</slf4j.version>
         <cwlavro.version>1.0.6</cwlavro.version>
         <dropwizard.version>1.0.5</dropwizard.version>
         <jackson.version>2.7.8</jackson.version>
-        <jersey-version>2.23.2</jersey-version>
+        <jersey.version>2.23.2</jersey.version>
+        <jetty.version>9.3.9.v20160517</jetty.version>
         <swagger-core-version>1.5.9</swagger-core-version>
     </properties>
 
@@ -211,27 +212,27 @@
             <dependency>
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-common</artifactId>
-                <version>${jersey-version}</version>
+                <version>${jersey.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-client</artifactId>
-                <version>${jersey-version}</version>
+                <version>${jersey.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-server</artifactId>
-                <version>${jersey-version}</version>
+                <version>${jersey.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.media</groupId>
                 <artifactId>jersey-media-multipart</artifactId>
-                <version>${jersey-version}</version>
+                <version>${jersey.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-servlet-core</artifactId>
-                <version>${jersey-version}</version>
+                <version>${jersey.version}</version>
             </dependency>
 
             <dependency>
@@ -334,8 +335,24 @@
         </dependency>
         <dependency>
             <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-jetty</artifactId>
+            <version>${dropwizard.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-db</artifactId>
             <version>${dropwizard.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+            <version>${jetty.version}</version>
         </dependency>
 
         <dependency>

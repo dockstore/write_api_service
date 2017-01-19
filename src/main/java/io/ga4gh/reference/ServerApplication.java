@@ -91,12 +91,7 @@ public class ServerApplication extends Application<ServerConfiguration>{
         // Enable CORS headers
         // final FilterRegistration.Dynamic cors = environment.servlets().addFilter("CORS", CrossOriginFilter.class);
         final FilterHolder filterHolder = environment.getApplicationContext().addFilter(CrossOriginFilter.class, "/*", EnumSet.of(REQUEST));
-
         // Configure CORS parameters
-        // cors.setInitParameter("allowedOrigins", "*");
-        // cors.setInitParameter("allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin");
-        // cors.setInitParameter("allowedMethods", "OPTIONS,GET,PUT,POST,DELETE,HEAD");
-
         filterHolder.setInitParameter(ACCESS_CONTROL_ALLOW_METHODS_HEADER, "GET,POST,DELETE,PUT,OPTIONS");
         filterHolder.setInitParameter(ALLOWED_ORIGINS_PARAM, "*");
         filterHolder.setInitParameter(ALLOWED_METHODS_PARAM, "GET,POST,DELETE,PUT,OPTIONS");
