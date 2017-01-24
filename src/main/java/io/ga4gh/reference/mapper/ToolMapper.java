@@ -16,7 +16,7 @@ public class ToolMapper implements ResultSetMapper<Tool> {
     public Tool map(int i, ResultSet resultSet, StatementContext statementContext) throws SQLException {
         Tool tool = new Tool();
         tool.setUrl(resultSet.getString("url"));
-        tool.setId(resultSet.getString("id"));
+        tool.setId(resultSet.getString("tool_id"));
         tool.setOrganization(resultSet.getString("organization"));
         tool.setToolname(resultSet.getString("toolname"));
         // needs its own type

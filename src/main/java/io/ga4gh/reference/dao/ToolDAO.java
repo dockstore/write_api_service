@@ -1,5 +1,7 @@
 package io.ga4gh.reference.dao;
 
+import java.util.Iterator;
+
 import io.ga4gh.reference.mapper.ToolMapper;
 import io.swagger.model.Tool;
 import org.skife.jdbi.v2.sqlobject.Bind;
@@ -11,15 +13,27 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 @RegisterMapper(ToolMapper.class)
 public interface ToolDAO {
 
-    @SqlUpdate("create table tool (id varchar(100) primary key, toolname varchar(100), url varchar(100) unique, organization varchar(100), description varchar(100), author varchar(100), verified boolean, "
-            + "verifiedSource varchar(100), signed boolean, metaVersion varchar(100))")
+    @SqlUpdate("create table tool "
+            + "(tool_id varchar(100) primary key, "
+            + "toolname varchar(100), "
+            + "url varchar(100) unique, "
+            + "organization varchar(100), "
+            + "description varchar(100), "
+            + "author varchar(100), "
+            + "verified boolean, "
+            + "verifiedSource varchar(100), "
+            + "signed boolean, "
+            + "metaVersion varchar(100))")
     void createToolTable();
 
-    @SqlUpdate("insert into tool (id) values (:id)")
-    void insert(@Bind("id") String id);
+    @SqlUpdate("insert into tool (tool_id) values (:tool_id)")
+    void insert(@Bind("tool_id") String toolId);
 
-    @SqlQuery("select id, toolname, url, organization, description, author, verified, verifiedSource, metaVersion, signed from tool where id = :id")
-    Tool findById(@Bind("id") String id);
+    @SqlQuery("select * from tool where tool_id = :tool_id")
+    Tool findById(@Bind("tool_id") String toolId);
+
+    @SqlQuery("select * from tool")
+    Iterator<Tool> listAllTools();
 
     @SqlUpdate("update tool set url = :url,"
             + "organization = :organization,"
@@ -29,7 +43,7 @@ public interface ToolDAO {
             + "verifiedSource = :verifiedSource,"
             + "metaVersion = :metaVersion,"
             + "signed = :signed"
-            + " where id = :id")
+            + " where tool_id = :id")
     int update(@BindBean Tool t);
 
 }

@@ -7,6 +7,9 @@ import io.dropwizard.jdbi.DBIFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.ga4gh.reference.dao.ToolDAO;
+import io.ga4gh.reference.dao.ToolDescriptorDAO;
+import io.ga4gh.reference.dao.ToolDockerfileDAO;
+import io.ga4gh.reference.dao.ToolVersionDAO;
 import io.swagger.api.MetadataApi;
 import io.swagger.api.ToolClassesApi;
 import io.swagger.api.ToolsApi;
@@ -54,23 +57,35 @@ public class ServerApplication extends Application<ServerConfiguration>{
 
         final DBIFactory factory = new DBIFactory();
         final DBI jdbi = factory.build(environment, configuration.getDataSourceFactory(), "derby");
-        final ToolDAO dao = jdbi.onDemand(ToolDAO.class);
+        final ToolDAO toolDAO = jdbi.onDemand(ToolDAO.class);
+        final ToolVersionDAO toolVersionDAO = jdbi.onDemand(ToolVersionDAO.class);
+        final ToolDescriptorDAO toolDescriptorDAO = jdbi.onDemand(ToolDescriptorDAO.class);
+        final ToolDockerfileDAO toolDockerfileDAO = jdbi.onDemand(ToolDockerfileDAO.class);
 
         try(Handle h = jdbi.open()){
             String createdbString = configuration.getDataSourceFactory().getProperties().getOrDefault("createdb", "false");
             boolean freshStart = Boolean.valueOf(createdbString);
             if (freshStart) {
                 try {
+                    h.execute("drop table dockerfile");
+                    h.execute("drop table descriptor");
+                    h.execute("drop table toolversion");
                     h.execute("drop table tool");
-                    h.execute("drop sequence id restrict");
                 }catch(Exception e){
-                    // do nothing if the table already exists
+                    // do nothing if the table does not already exist
+                    System.out.println(e.getMessage());
                 }
-                dao.createToolTable();
+                toolDAO.createToolTable();
+                toolVersionDAO.createToolVersionTable();
+                toolDescriptorDAO.createToolDescriptorTable();
+                toolDockerfileDAO.createToolDockerfileTable();
             }
         }
 
-        ToolsApiServiceFactory.setToolDAO(dao);
+        ToolsApiServiceFactory.setToolDAO(toolDAO);
+        ToolsApiServiceFactory.setToolVersionDAO(toolVersionDAO);
+        ToolsApiServiceFactory.setToolDescriptorDAO(toolDescriptorDAO);
+        ToolsApiServiceFactory.setToolDockerfileDAO(toolDockerfileDAO);
 
         final TemplateHealthCheck healthCheck = new TemplateHealthCheck("Hello %s!");
         environment.healthChecks().register("template", healthCheck);
@@ -89,7 +104,6 @@ public class ServerApplication extends Application<ServerConfiguration>{
 
         // optional CORS support
         // Enable CORS headers
-        // final FilterRegistration.Dynamic cors = environment.servlets().addFilter("CORS", CrossOriginFilter.class);
         final FilterHolder filterHolder = environment.getApplicationContext().addFilter(CrossOriginFilter.class, "/*", EnumSet.of(REQUEST));
         // Configure CORS parameters
         filterHolder.setInitParameter(ACCESS_CONTROL_ALLOW_METHODS_HEADER, "GET,POST,DELETE,PUT,OPTIONS");
@@ -99,13 +113,13 @@ public class ServerApplication extends Application<ServerConfiguration>{
                 "Authorization, X-Auth-Username, X-Auth-Password, X-Requested-With,Content-Type,Accept,Origin,Access-Control-Request-Headers,cache-control");
 
 
-        dao.insert("quay.io/org1/test1");
-        dao.insert("quay.io/org1/test2");
+        toolDAO.insert("quay.io/org1/test1");
+        toolDAO.insert("quay.io/org1/test2");
 
-        Tool tool1 = dao.findById("quay.io/org1/test1");
+        Tool tool1 = toolDAO.findById("quay.io/org1/test1");
         tool1.description("funky");
-        dao.update(tool1);
-        Tool tool2 = dao.findById("quay.io/org1/test2");
+        toolDAO.update(tool1);
+        Tool tool2 = toolDAO.findById("quay.io/org1/test2");
 
         System.out.println("hooked up");
     }
