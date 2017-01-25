@@ -27,7 +27,7 @@ public interface ToolDAO {
     void createToolTable();
 
     @SqlUpdate("insert into tool (tool_id) values (:tool_id)")
-    void insert(@Bind("tool_id") String toolId);
+    int insert(@Bind("tool_id") String toolId);
 
     @SqlQuery("select * from tool where tool_id = :tool_id")
     Tool findById(@Bind("tool_id") String toolId);

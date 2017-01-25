@@ -23,7 +23,7 @@ public interface ToolDescriptorDAO {
     void createToolDescriptorTable();
 
     @SqlUpdate("insert into descriptor (toolversion_id) values (:toolversion_id)")
-    void insert(@Bind("toolversion_id") String toolVersionId);
+    int insert(@Bind("toolversion_id") String toolVersionId);
 
     @SqlQuery("select * from descriptor where toolversion_id = :toolversion_id")
     ToolDescriptor findById(@Bind("toolversion_id") String toolVersionId);

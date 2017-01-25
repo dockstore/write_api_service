@@ -1,6 +1,7 @@
 package io.swagger.api.impl;
 
 import java.util.Iterator;
+import java.util.Objects;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
@@ -15,6 +16,7 @@ import io.swagger.api.NotFoundException;
 import io.swagger.api.ToolsApiService;
 import io.swagger.model.Tool;
 import io.swagger.model.ToolVersion;
+import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.jetty.http.HttpStatus;
 
 public class ToolsApiServiceImpl extends ToolsApiService {
@@ -46,17 +48,35 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     }
     @Override
     public Response toolsIdPut(String id, Tool body, SecurityContext securityContext) throws NotFoundException {
-        return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
+        // ensure that id matches
+        if (!Objects.equals(id, body.getId())){
+            return Response.notModified().build();
+        }
+        int update = toolDAO.update(body);
+        if (update != 1){
+            return Response.notModified().build();
+        }
+        return Response.ok().entity(toolDAO.findById(id)).build();
     }
     @Override
     public Response toolsIdVersionsGet(String id, SecurityContext securityContext) throws NotFoundException {
-        // do some magic!
-        return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
+        Iterator<ToolVersion> toolVersionIterator = toolVersionDAO.listToolVersionsForTool(id);
+        if (!toolVersionIterator.hasNext()){
+            return Response.noContent().build();
+        }
+        return Response.ok().entity(Lists.newArrayList(toolVersionIterator)).build();
     }
     @Override
     public Response toolsIdVersionsPost(String id, ToolVersion body, SecurityContext securityContext) throws NotFoundException {
-        // do some magic!
-        return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
+        int insert = toolVersionDAO.insert(id, body.getId());
+        if (insert != 1){
+            return Response.notModified().build();
+        }
+        ToolVersion byId = toolVersionDAO.findById(id, body.getId());
+        if (byId == null){
+            return Response.notModified().build();
+        }
+        return Response.ok().entity(byId).build();
     }
     @Override
     public Response toolsIdVersionsVersionIdDockerfileGet(String id, String versionId, SecurityContext securityContext) throws NotFoundException {
@@ -72,14 +92,25 @@ public class ToolsApiServiceImpl extends ToolsApiService {
 
     @Override
     public Response toolsIdVersionsVersionIdGet(String id, String versionId, SecurityContext securityContext) throws NotFoundException {
-        // do some magic!
-        return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
+        ToolVersion byId = toolVersionDAO.findById(id, versionId);
+        if (byId == null){
+            return Response.notModified().build();
+        }
+        return Response.ok().entity(byId).build();
     }
 
     @Override
     public Response toolsIdVersionsVersionIdPut(String id, String versionId, ToolVersion body, SecurityContext securityContext)
             throws NotFoundException {
-        return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
+        // ensure that id matches
+        if (!Objects.equals(versionId, body.getId())){
+            return Response.notModified().build();
+        }
+        int update = toolVersionDAO.update(body);
+        if (update != 1){
+            return Response.notModified().build();
+        }
+        return Response.ok().entity(toolVersionDAO.findById(id, versionId)).build();
     }
 
     @Override
@@ -114,6 +145,11 @@ public class ToolsApiServiceImpl extends ToolsApiService {
 
     @Override
     public Response toolsPost(Tool body, SecurityContext securityContext) throws NotFoundException {
-        return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
+        toolDAO.insert(body.getId());
+        Tool byId = toolDAO.findById(body.getId());
+        if (byId == null){
+            return Response.notModified().build();
+        }
+        return Response.ok().entity(byId).build();
     }
 }

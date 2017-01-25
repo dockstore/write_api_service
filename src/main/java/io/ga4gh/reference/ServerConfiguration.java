@@ -20,5 +20,10 @@ public class ServerConfiguration extends Configuration {
         return database;
     }
 
+    @JsonProperty
+    private String githubToken;
 
+    public String getGithubToken() {
+        return githubToken;
+    }
 }

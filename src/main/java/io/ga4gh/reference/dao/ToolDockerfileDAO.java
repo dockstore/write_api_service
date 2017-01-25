@@ -22,7 +22,7 @@ public interface ToolDockerfileDAO {
     void createToolDockerfileTable();
 
     @SqlUpdate("insert into dockerfile (toolversion_id, dockerfile) values (:toolversion_id,:dockerfile)")
-    void insert(@Bind("toolversion_id") String toolVersionId, @Bind("dockerfile") String dockerfile);
+    int insert(@Bind("toolversion_id") String toolVersionId, @Bind("dockerfile") String dockerfile);
 
     @SqlQuery("select * from dockerfile where toolversion_id = :toolversion_id")
     ToolDockerfile findById(@Bind("toolversion_id") String toolVersionId);

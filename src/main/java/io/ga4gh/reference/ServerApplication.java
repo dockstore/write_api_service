@@ -6,6 +6,7 @@ import io.dropwizard.Application;
 import io.dropwizard.jdbi.DBIFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.ga4gh.reference.dao.GitHubBuilder;
 import io.ga4gh.reference.dao.ToolDAO;
 import io.ga4gh.reference.dao.ToolDescriptorDAO;
 import io.ga4gh.reference.dao.ToolDockerfileDAO;
@@ -61,6 +62,7 @@ public class ServerApplication extends Application<ServerConfiguration>{
         final ToolVersionDAO toolVersionDAO = jdbi.onDemand(ToolVersionDAO.class);
         final ToolDescriptorDAO toolDescriptorDAO = jdbi.onDemand(ToolDescriptorDAO.class);
         final ToolDockerfileDAO toolDockerfileDAO = jdbi.onDemand(ToolDockerfileDAO.class);
+        final GitHubBuilder gitHubBuilder = new GitHubBuilder(configuration.getGithubToken());
 
         try(Handle h = jdbi.open()){
             String createdbString = configuration.getDataSourceFactory().getProperties().getOrDefault("createdb", "false");
@@ -86,6 +88,7 @@ public class ServerApplication extends Application<ServerConfiguration>{
         ToolsApiServiceFactory.setToolVersionDAO(toolVersionDAO);
         ToolsApiServiceFactory.setToolDescriptorDAO(toolDescriptorDAO);
         ToolsApiServiceFactory.setToolDockerfileDAO(toolDockerfileDAO);
+
 
         final TemplateHealthCheck healthCheck = new TemplateHealthCheck("Hello %s!");
         environment.healthChecks().register("template", healthCheck);
