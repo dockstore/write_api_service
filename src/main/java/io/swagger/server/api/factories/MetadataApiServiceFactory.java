@@ -1,7 +1,7 @@
-package io.swagger.api.factories;
+package io.swagger.server.api.factories;
 
-import io.swagger.api.impl.MetadataApiServiceImpl;
-import io.swagger.api.MetadataApiService;
+import io.swagger.server.api.impl.MetadataApiServiceImpl;
+import io.swagger.server.api.MetadataApiService;
 
 public class MetadataApiServiceFactory {
     private final static MetadataApiService service = new MetadataApiServiceImpl();

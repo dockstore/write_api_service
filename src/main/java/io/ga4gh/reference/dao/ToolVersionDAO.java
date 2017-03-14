@@ -3,7 +3,7 @@ package io.ga4gh.reference.dao;
 import java.util.Iterator;
 
 import io.ga4gh.reference.mapper.ToolVersionMapper;
-import io.swagger.model.ToolVersion;
+import io.swagger.server.model.ToolVersion;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.BindBean;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;

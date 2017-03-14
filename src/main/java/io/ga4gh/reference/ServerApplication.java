@@ -6,19 +6,20 @@ import io.dropwizard.Application;
 import io.dropwizard.jdbi.DBIFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import io.ga4gh.reference.dao.GitHubBuilder;
+import io.ga4gh.reference.api.GitHubBuilder;
+import io.ga4gh.reference.api.QuayIoBuilder;
 import io.ga4gh.reference.dao.ToolDAO;
 import io.ga4gh.reference.dao.ToolDescriptorDAO;
 import io.ga4gh.reference.dao.ToolDockerfileDAO;
 import io.ga4gh.reference.dao.ToolVersionDAO;
-import io.swagger.api.MetadataApi;
-import io.swagger.api.ToolClassesApi;
-import io.swagger.api.ToolsApi;
-import io.swagger.api.factories.ToolsApiServiceFactory;
+import io.swagger.server.api.factories.ToolsApiServiceFactory;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
-import io.swagger.model.Tool;
+import io.swagger.server.api.MetadataApi;
+import io.swagger.server.api.ToolClassesApi;
+import io.swagger.server.api.ToolsApi;
+import io.swagger.server.model.Tool;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.skife.jdbi.v2.DBI;
@@ -50,8 +51,8 @@ public class ServerApplication extends Application<ServerConfiguration>{
     @Override
     public void run(ServerConfiguration configuration, Environment environment) {
         BeanConfig beanConfig = new BeanConfig();
-        beanConfig.setSchemes(new String[] { /** configuration.getScheme() */ "http" });
-        beanConfig.setHost("localhost:8080" /**configuration.getHostname() + ':' + configuration.getPort()*/);
+        beanConfig.setSchemes(new String[] { "http" });
+        beanConfig.setHost("localhost:8080");
         beanConfig.setBasePath("/");
         beanConfig.setResourcePackage("io.swagger.api");
         beanConfig.setScan(true);
@@ -62,21 +63,20 @@ public class ServerApplication extends Application<ServerConfiguration>{
         final ToolVersionDAO toolVersionDAO = jdbi.onDemand(ToolVersionDAO.class);
         final ToolDescriptorDAO toolDescriptorDAO = jdbi.onDemand(ToolDescriptorDAO.class);
         final ToolDockerfileDAO toolDockerfileDAO = jdbi.onDemand(ToolDockerfileDAO.class);
-        final GitHubBuilder gitHubBuilder = new GitHubBuilder(configuration.getGithubToken());
+
+        GitHubBuilder gitHubBuilder = new GitHubBuilder(configuration.getGithubToken());
+        QuayIoBuilder quayIoBuilder = new QuayIoBuilder(configuration.getQuayioTokenToken());
 
         try(Handle h = jdbi.open()){
             String createdbString = configuration.getDataSourceFactory().getProperties().getOrDefault("createdb", "false");
             boolean freshStart = Boolean.valueOf(createdbString);
             if (freshStart) {
-                try {
-                    h.execute("drop table dockerfile");
-                    h.execute("drop table descriptor");
-                    h.execute("drop table toolversion");
-                    h.execute("drop table tool");
-                }catch(Exception e){
-                    // do nothing if the table does not already exist
-                    System.out.println(e.getMessage());
-                }
+                dropTableQuietly(h, "dockerfile");
+                dropTableQuietly(h, "descriptor");
+                dropTableQuietly(h, "tooltest");
+                dropTableQuietly(h, "toolversion");
+                dropTableQuietly(h, "tool");
+
                 toolDAO.createToolTable();
                 toolVersionDAO.createToolVersionTable();
                 toolDescriptorDAO.createToolDescriptorTable();
@@ -88,6 +88,8 @@ public class ServerApplication extends Application<ServerConfiguration>{
         ToolsApiServiceFactory.setToolVersionDAO(toolVersionDAO);
         ToolsApiServiceFactory.setToolDescriptorDAO(toolDescriptorDAO);
         ToolsApiServiceFactory.setToolDockerfileDAO(toolDockerfileDAO);
+        ToolsApiServiceFactory.setGitHubBuilder(gitHubBuilder);
+        ToolsApiServiceFactory.setQuayIoBuilder(quayIoBuilder);
 
 
         final TemplateHealthCheck healthCheck = new TemplateHealthCheck("Hello %s!");
@@ -115,7 +117,6 @@ public class ServerApplication extends Application<ServerConfiguration>{
         filterHolder.setInitParameter(ALLOWED_HEADERS_PARAM,
                 "Authorization, X-Auth-Username, X-Auth-Password, X-Requested-With,Content-Type,Accept,Origin,Access-Control-Request-Headers,cache-control");
 
-
         toolDAO.insert("quay.io/org1/test1");
         toolDAO.insert("quay.io/org1/test2");
 
@@ -123,7 +124,14 @@ public class ServerApplication extends Application<ServerConfiguration>{
         tool1.description("funky");
         toolDAO.update(tool1);
         Tool tool2 = toolDAO.findById("quay.io/org1/test2");
+    }
 
-        System.out.println("hooked up");
+    public void dropTableQuietly(Handle h, String tableName){
+        try {
+            h.execute("drop table " + tableName);
+        }catch(Exception e){
+            // do nothing if the table does not already exist
+            System.out.println(e.getMessage());
+        }
     }
 }

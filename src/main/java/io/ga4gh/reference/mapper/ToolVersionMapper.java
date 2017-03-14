@@ -3,7 +3,7 @@ package io.ga4gh.reference.mapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import io.swagger.model.ToolVersion;
+import io.swagger.server.model.ToolVersion;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 

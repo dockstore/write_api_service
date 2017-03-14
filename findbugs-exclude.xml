@@ -15,12 +15,19 @@
   -->
 
 <FindBugsFilter>
-     <Match>
-       <!-- conflicts with GSON's use of TypeTokens -->
-       <Bug pattern="UMAC_UNCALLABLE_METHOD_OF_ANONYMOUS_CLASS" />
-     </Match>
-     <Match>
-       <!-- conflicts with GSON's use of TypeTokens -->
-       <Bug pattern="SE_BAD_FIELD_INNER_CLASS" />
-     </Match>
+    <Match>
+        <!-- conflicts with GSON's use of TypeTokens -->
+        <Bug pattern="UMAC_UNCALLABLE_METHOD_OF_ANONYMOUS_CLASS"/>
+    </Match>
+    <Match>
+        <!-- conflicts with GSON's use of TypeTokens -->
+        <Bug pattern="SE_BAD_FIELD_INNER_CLASS"/>
+    </Match>
+    <!-- try to exclude generated classes -->
+    <Match>
+        <Package name="io.swagger.client"/>
+    </Match>
+    <Match>
+        <Package name="io.swagger.server"/>
+    </Match>
 </FindBugsFilter>

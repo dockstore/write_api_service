@@ -26,4 +26,11 @@ public class ServerConfiguration extends Configuration {
     public String getGithubToken() {
         return githubToken;
     }
+
+    @JsonProperty
+    private String quayioToken;
+
+    public String getQuayioTokenToken() {
+        return quayioToken;
+    }
 }

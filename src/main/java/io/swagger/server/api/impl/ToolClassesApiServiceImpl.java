@@ -1,11 +1,11 @@
-package io.swagger.api.impl;
+package io.swagger.server.api.impl;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
-import io.swagger.api.NotFoundException;
-import io.swagger.api.ToolClassesApiService;
-import io.swagger.model.ToolClass;
+import io.swagger.server.api.NotFoundException;
+import io.swagger.server.api.ToolClassesApiService;
+import io.swagger.server.model.ToolClass;
 
 public class ToolClassesApiServiceImpl extends ToolClassesApiService {
     @Override

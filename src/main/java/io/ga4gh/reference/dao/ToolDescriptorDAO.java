@@ -1,9 +1,10 @@
 package io.ga4gh.reference.dao;
 
+
 import java.util.Iterator;
 
 import io.ga4gh.reference.mapper.ToolDescriptorMapper;
-import io.swagger.model.ToolDescriptor;
+import io.swagger.server.model.ToolDescriptor;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.BindBean;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;

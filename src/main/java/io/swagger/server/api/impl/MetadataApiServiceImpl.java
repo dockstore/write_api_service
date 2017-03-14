@@ -1,12 +1,11 @@
-package io.swagger.api.impl;
+package io.swagger.server.api.impl;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
-import io.swagger.api.ApiResponseMessage;
-import io.swagger.api.MetadataApiService;
-import io.swagger.api.NotFoundException;
-import io.swagger.model.Metadata;
+import io.swagger.server.api.MetadataApiService;
+import io.swagger.server.api.NotFoundException;
+import io.swagger.server.model.Metadata;
 
 public class MetadataApiServiceImpl extends MetadataApiService {
     @Override

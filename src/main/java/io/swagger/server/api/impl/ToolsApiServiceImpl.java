@@ -1,4 +1,4 @@
-package io.swagger.api.impl;
+package io.swagger.server.api.impl;
 
 import java.util.Iterator;
 import java.util.Objects;
@@ -7,16 +7,15 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
 import com.google.common.collect.Lists;
+import io.ga4gh.reference.dao.ToolDAO;
 import io.ga4gh.reference.dao.ToolDescriptorDAO;
 import io.ga4gh.reference.dao.ToolDockerfileDAO;
-import io.ga4gh.reference.dao.ToolDAO;
 import io.ga4gh.reference.dao.ToolVersionDAO;
-import io.swagger.api.ApiResponseMessage;
-import io.swagger.api.NotFoundException;
-import io.swagger.api.ToolsApiService;
-import io.swagger.model.Tool;
-import io.swagger.model.ToolVersion;
-import org.eclipse.egit.github.core.client.GitHubClient;
+import io.swagger.server.api.ApiResponseMessage;
+import io.swagger.server.api.NotFoundException;
+import io.swagger.server.api.ToolsApiService;
+import io.swagger.server.model.Tool;
+import io.swagger.server.model.ToolVersion;
 import org.eclipse.jetty.http.HttpStatus;
 
 public class ToolsApiServiceImpl extends ToolsApiService {
@@ -139,6 +138,13 @@ public class ToolsApiServiceImpl extends ToolsApiService {
 
     @Override
     public Response toolsIdVersionsVersionIdTypeTestsGet(String type, String id, String versionId, SecurityContext securityContext) throws NotFoundException {
+        // do some magic!
+        return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
+    }
+
+    @Override
+    public Response toolsIdVersionsVersionIdTypeTestsPut(String type, String id, String versionId, SecurityContext securityContext)
+            throws NotFoundException {
         // do some magic!
         return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
     }
