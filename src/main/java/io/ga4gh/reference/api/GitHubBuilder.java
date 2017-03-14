@@ -13,16 +13,22 @@ import java.util.Map;
 import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.RepositoryContents;
 import org.eclipse.egit.github.core.client.GitHubClient;
+import org.eclipse.egit.github.core.client.RequestException;
 import org.eclipse.egit.github.core.service.ContentsService;
 import org.eclipse.egit.github.core.service.DataService;
 import org.eclipse.egit.github.core.service.OrganizationService;
 import org.eclipse.egit.github.core.service.RepositoryService;
 import org.eclipse.egit.github.core.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Create structures in the dockstore.org format.
  */
 public class GitHubBuilder {
+
+    private static final Logger LOG = LoggerFactory.getLogger(GitHubBuilder.class);
+
     private final GitHubClient githubClient;
     private final UserService uService;
     private final OrganizationService oService;
@@ -43,24 +49,27 @@ public class GitHubBuilder {
 
 
     public boolean createRepo(String organization, String repo){
-
         try {
             Repository repoTemplate = new Repository();
             repoTemplate.setName(repo);
-            service.createRepository(repoTemplate);
+            service.createRepository(organization, repoTemplate);
             // need to initialize the new repo, oddly not possible via API
             HashMap<String, Object> map = new HashMap<>();
             byte[] encode = Base64.getEncoder().encode("Test".getBytes(StandardCharsets.UTF_8));
             map.put("content", new String(encode, StandardCharsets.UTF_8));
             map.put("message","test");
             githubClient.put("/repos/" + organization + "/" + repo + "/contents/readme.md", map, Map.class);
+        } catch(RequestException e){
+            LOG.error("Was not able to create " + organization + "/" + repo);
+            // was not able to create the repo
+            return false;
         } catch(IOException e){
             throw new RuntimeException(e);
         }
         return true;
     }
 
-    private boolean repoExists(String organization, String repo) {
+    public boolean repoExists(String organization, String repo) {
         try {
             return service.getRepository(organization, repo) != null;
         } catch (IOException e) {

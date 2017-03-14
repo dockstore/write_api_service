@@ -12,14 +12,13 @@ import io.ga4gh.reference.dao.ToolDAO;
 import io.ga4gh.reference.dao.ToolDescriptorDAO;
 import io.ga4gh.reference.dao.ToolDockerfileDAO;
 import io.ga4gh.reference.dao.ToolVersionDAO;
-import io.swagger.server.api.factories.ToolsApiServiceFactory;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import io.swagger.server.api.MetadataApi;
 import io.swagger.server.api.ToolClassesApi;
 import io.swagger.server.api.ToolsApi;
-import io.swagger.server.model.Tool;
+import io.swagger.server.api.factories.ToolsApiServiceFactory;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.skife.jdbi.v2.DBI;
@@ -116,14 +115,6 @@ public class ServerApplication extends Application<ServerConfiguration>{
         filterHolder.setInitParameter(ALLOWED_METHODS_PARAM, "GET,POST,DELETE,PUT,OPTIONS");
         filterHolder.setInitParameter(ALLOWED_HEADERS_PARAM,
                 "Authorization, X-Auth-Username, X-Auth-Password, X-Requested-With,Content-Type,Accept,Origin,Access-Control-Request-Headers,cache-control");
-
-        toolDAO.insert("quay.io/org1/test1");
-        toolDAO.insert("quay.io/org1/test2");
-
-        Tool tool1 = toolDAO.findById("quay.io/org1/test1");
-        tool1.description("funky");
-        toolDAO.update(tool1);
-        Tool tool2 = toolDAO.findById("quay.io/org1/test2");
     }
 
     public void dropTableQuietly(Handle h, String tableName){

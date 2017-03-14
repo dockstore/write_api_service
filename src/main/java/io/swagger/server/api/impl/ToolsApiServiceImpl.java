@@ -1,12 +1,15 @@
 package io.swagger.server.api.impl;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
 import com.google.common.collect.Lists;
+import io.ga4gh.reference.api.GitHubBuilder;
+import io.ga4gh.reference.api.QuayIoBuilder;
 import io.ga4gh.reference.dao.ToolDAO;
 import io.ga4gh.reference.dao.ToolDescriptorDAO;
 import io.ga4gh.reference.dao.ToolDockerfileDAO;
@@ -15,21 +18,33 @@ import io.swagger.server.api.ApiResponseMessage;
 import io.swagger.server.api.NotFoundException;
 import io.swagger.server.api.ToolsApiService;
 import io.swagger.server.model.Tool;
+import io.swagger.server.model.ToolDescriptor;
+import io.swagger.server.model.ToolDockerfile;
+import io.swagger.server.model.ToolTests;
 import io.swagger.server.model.ToolVersion;
 import org.eclipse.jetty.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ToolsApiServiceImpl extends ToolsApiService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ToolsApiServiceImpl.class);
 
     private final ToolDAO toolDAO;
     private final ToolVersionDAO toolVersionDAO;
     private final ToolDescriptorDAO toolDescriptorDAO;
     private final ToolDockerfileDAO toolDockerfileDAO;
+    private final GitHubBuilder gitHubBuilder;
+    private final QuayIoBuilder quayIoBuilder;
 
-    public ToolsApiServiceImpl(ToolDAO dao, ToolVersionDAO toolVersionDAO, ToolDescriptorDAO toolDescriptorDAO, ToolDockerfileDAO toolDockerfileDAO){
+    public ToolsApiServiceImpl(ToolDAO dao, ToolVersionDAO toolVersionDAO, ToolDescriptorDAO toolDescriptorDAO,
+            ToolDockerfileDAO toolDockerfileDAO, GitHubBuilder gitHubBuilder, QuayIoBuilder quayIoBuilder){
         this.toolDAO = dao;
         this.toolVersionDAO = toolVersionDAO;
         this.toolDescriptorDAO = toolDescriptorDAO;
         this.toolDockerfileDAO = toolDockerfileDAO;
+        this.gitHubBuilder = gitHubBuilder;
+        this.quayIoBuilder = quayIoBuilder;
     }
 
     @Override
@@ -79,13 +94,20 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     }
     @Override
     public Response toolsIdVersionsVersionIdDockerfileGet(String id, String versionId, SecurityContext securityContext) throws NotFoundException {
+
         // do some magic!
         return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
     }
 
     @Override
-    public Response toolsIdVersionsVersionIdDockerfilePost(String id, String versionId, SecurityContext securityContext)
+    public Response toolsIdVersionsVersionIdDockerfilePost(String id, String versionId, ToolDockerfile dockerfile, SecurityContext securityContext)
             throws NotFoundException {
+        ToolVersion byId = toolVersionDAO.findById(id, versionId);
+        //toolDockerfileDAO.insert(versionId, )
+        if (byId != null) {
+            return Response.ok().entity(byId).build();
+        }
+
         return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
     }
 
@@ -119,7 +141,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     }
 
     @Override
-    public Response toolsIdVersionsVersionIdTypeDescriptorPost(String type, String id, String versionId, SecurityContext securityContext)
+    public Response toolsIdVersionsVersionIdTypeDescriptorPost(String type, String id, String versionId, ToolDescriptor body, SecurityContext securityContext)
             throws NotFoundException {
         return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
     }
@@ -131,8 +153,8 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     }
 
     @Override
-    public Response toolsIdVersionsVersionIdTypeDescriptorRelativePathPost(String type, String id, String versionId, String relativePath,
-            SecurityContext securityContext) throws NotFoundException {
+    public Response toolsIdVersionsVersionIdTypeDescriptorRelativePathPost(String type, String id, String versionId, String relativePath
+            , ToolDescriptor body, SecurityContext securityContext) throws NotFoundException {
         return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
     }
 
@@ -143,7 +165,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     }
 
     @Override
-    public Response toolsIdVersionsVersionIdTypeTestsPut(String type, String id, String versionId, SecurityContext securityContext)
+    public Response toolsIdVersionsVersionIdTypeTestsPut(String type, String id, String versionId, List<ToolTests> body, SecurityContext securityContext)
             throws NotFoundException {
         // do some magic!
         return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
@@ -151,11 +173,19 @@ public class ToolsApiServiceImpl extends ToolsApiService {
 
     @Override
     public Response toolsPost(Tool body, SecurityContext securityContext) throws NotFoundException {
-        toolDAO.insert(body.getId());
-        Tool byId = toolDAO.findById(body.getId());
-        if (byId == null){
-            return Response.notModified().build();
+        // try creating a repo on github for this, this should probably be made into a transaction
+        if (!gitHubBuilder.repoExists(body.getOrganization(), body.getToolname())) {
+            boolean repo = gitHubBuilder.createRepo(body.getOrganization(), body.getToolname());
+            if (!repo) {
+                return Response.notModified("Could not create github repo").build();
+            }
         }
-        return Response.ok().entity(byId).build();
+        toolDAO.insert(body.getId());
+        toolDAO.update(body);
+        Tool byId = toolDAO.findById(body.getId());
+        if (byId != null) {
+            return Response.ok().entity(byId).build();
+        }
+        return Response.notModified().build();
     }
 }

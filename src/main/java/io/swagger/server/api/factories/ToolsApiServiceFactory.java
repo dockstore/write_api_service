@@ -25,7 +25,7 @@ public class ToolsApiServiceFactory {
         if (Lists.newArrayList(stuff).stream().filter(Objects::isNull).count() > 0){
             throw new RuntimeException("dependency for ToolsApiServiceFactory was not setup");
         }
-        return new ToolsApiServiceImpl(toolDAO, toolVersionDAO, toolDescriptorDAO, toolDockerfileDAO);
+        return new ToolsApiServiceImpl(toolDAO, toolVersionDAO, toolDescriptorDAO, toolDockerfileDAO, gitHubBuilder, quayIoBuilder);
     }
 
     public static void setToolDAO(ToolDAO toolDAO) {
