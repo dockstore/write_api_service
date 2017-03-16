@@ -24,18 +24,16 @@ public interface ToolDockerfileDAO {
             + ")")
     void createToolDockerfileTable();
 
-    @SqlUpdate("insert into dockerfile (toolversion_id, dockerfile) values (:toolversion_id,:dockerfile)")
-    int insert(@Bind("toolversion_id") String toolVersionId, @Bind("dockerfile") String dockerfile);
+    @SqlUpdate("insert into dockerfile (tool_id, version, dockerfile) values (:tool_id, :version, :dockerfile)")
+    int insert(@Bind("tool_id") String toolId, @Bind("version") String version, @Bind("dockerfile") String dockerfile);
 
-    @SqlQuery("select * from dockerfile where toolversion_id = :toolversion_id")
-    ToolDockerfile findById(@Bind("toolversion_id") String toolVersionId);
+    @SqlQuery("select * from dockerfile where tool_id = :tool_id and version = :version")
+    ToolDockerfile findById(@Bind("tool_id") String toolId, @Bind("version") String version);
 
-    @SqlQuery("select * from toolversion where tool_id = :tool_id")
-    Iterator<ToolVersion> listToolVersionsForTool(@Bind("tool_id") String toolid);
 
     @SqlUpdate("update dockerfile set "
             + "url = :url "
-            + "where id = :toolversion_id")
-    int update(@BindBean ToolDockerfile t, @Bind("toolversion_id") String toolVersionId);
+            + "where id = :tool_id and version = :version")
+    int update(@BindBean ToolDockerfile t, @Bind("tool_id") String toolId, @Bind("version") String version);
 
 }

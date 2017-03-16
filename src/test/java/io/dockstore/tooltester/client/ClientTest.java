@@ -14,6 +14,7 @@ import io.swagger.client.api.GAGHApi;
 import io.swagger.client.api.GAGHoptionalwriteApi;
 import io.swagger.client.model.Metadata;
 import io.swagger.client.model.Tool;
+import io.swagger.client.model.ToolDockerfile;
 import io.swagger.client.model.ToolVersion;
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -35,7 +36,9 @@ public class ClientTest {
 
     @Test
     public void postDescriptorAndCreateRepo() throws IOException, ApiException {
-        // TODO: clean repo if needed
+        // watch out, versions can't start with a "v"
+        final String toolVersionNumber = "1.0";
+
         GAGHoptionalwriteApi api = getGaghOptionalApi();
         Tool tool = new Tool();
         tool.setId("dockstore-testing/test_repo");
@@ -44,13 +47,19 @@ public class ClientTest {
         Tool createdTool = api.toolsPost(tool);
         Assert.assertTrue(createdTool.getOrganization().equals("dockstore-testing"));
 
-        // github repo has been created here
-        // next , create files and release
+        // github repo has been created by now
+        // next create release
         ToolVersion version = new ToolVersion();
         version.setId("id");
+        version.setName(toolVersionNumber);
         version.setDescriptorType(Lists.newArrayList(ToolVersion.DescriptorTypeEnum.CWL));
-        List<ToolVersion> toolVersions = api.toolsIdVersionsPost("dockstore-testing/test_repo", version);
-        Assert.assertTrue(toolVersions.size() == 1);
+        ToolVersion toolVersion = api.toolsIdVersionsPost("dockstore-testing/test_repo", version);
+        Assert.assertTrue(toolVersion != null);
+        // create files, this should trigger a quay.io build
+        ToolDockerfile toolDockerfile = new ToolDockerfile();
+        toolDockerfile.setDockerfile("FROM ubuntu:12.04");
+        ToolDockerfile returnedDockerfile = api.toolsIdVersionsVersionIdDockerfilePost("dockstore-testing/test_repo", toolVersionNumber, toolDockerfile);
+        Assert.assertTrue(returnedDockerfile != null);
     }
 
     private GAGHApi getGaghApi() {

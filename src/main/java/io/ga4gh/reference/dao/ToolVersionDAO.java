@@ -28,10 +28,10 @@ public interface ToolVersionDAO {
             + ")")
     void createToolVersionTable();
 
-    @SqlUpdate("insert into tool (tool_id, version) values (:toolid,:version)")
+    @SqlUpdate("insert into toolversion (tool_id, version) values (:tool_id,:version)")
     int insert(@Bind("tool_id") String toolid, @Bind("version") String version);
 
-    @SqlQuery("select * from toolversion where tool_id = :tool_id, version = :version")
+    @SqlQuery("select * from toolversion where tool_id = :tool_id and version = :version")
     ToolVersion findByToolVersion(@Bind("tool_id") String toolId, @Bind("version") String version);
 
     @SqlQuery("select * from toolversion where tool_id = :tool_id")

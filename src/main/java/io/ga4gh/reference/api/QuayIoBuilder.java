@@ -67,7 +67,7 @@ public class QuayIoBuilder {
         }
     }
 
-    private boolean createRepo(String namespace, String quayRepo, String gitRepo) {
+    public boolean createRepo(String namespace, String quayRepo, String gitRepo) {
         Map<String, String> infoMap = new HashMap<>();
         infoMap.put("namespace", namespace);
         infoMap.put("repo", gitRepo);
@@ -92,7 +92,7 @@ public class QuayIoBuilder {
         }
     }
 
-    private boolean repoExists(String namespace, String repo) {
+    public boolean repoExists(String namespace, String repo) {
         final String repoUrl = QUAY_URL + "repository/" + namespace + "/" + repo;
         Optional<String> responseAsString = ResourceUtilities.asString(repoUrl, token, httpClient);
         return responseAsString.map(s -> true).orElse(false);

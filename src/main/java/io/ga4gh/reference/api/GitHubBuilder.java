@@ -14,6 +14,7 @@ import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
+import com.google.api.client.http.HttpResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
@@ -117,9 +118,10 @@ public class GitHubBuilder {
                 Map<String, Object> map = lowLevelGetRequest("https://api.github.com/repos/" + organization + "/" + repo + "/releases/tags/"+releaseName);
                 int releaseNumber = Double.valueOf((double)map.get("id")).intValue();
                 githubClient.delete("/repos/" + organization + "/" + repo + "/releases/" + releaseNumber);
-            } catch (RequestException e) {
+                githubClient.delete("/repos/" + organization + "/" + repo + "/git/refs/tags/" + releaseName);
+            } catch (HttpResponseException e) {
                 // ignore 404s
-                if (e.getStatus() != HttpStatus.SC_NOT_FOUND){
+                if (e.getStatusCode() != HttpStatus.SC_NOT_FOUND){
                     throw new RuntimeException(e);
                 }
             }

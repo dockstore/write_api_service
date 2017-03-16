@@ -15,7 +15,7 @@ public class ToolVersionMapper implements ResultSetMapper<ToolVersion> {
     @Override
     public ToolVersion map(int i, ResultSet resultSet, StatementContext statementContext) throws SQLException {
         ToolVersion toolVersion = new ToolVersion();
-        toolVersion.setName(resultSet.getString("name"));
+        toolVersion.setName(resultSet.getString("version"));
         toolVersion.setUrl(resultSet.getString("url"));
         toolVersion.setVerified(resultSet.getBoolean("verified"));
         toolVersion.setVerifiedSource(resultSet.getString("verifiedSource"));
