@@ -265,6 +265,16 @@
                 <artifactId>commons-lang3</artifactId>
                 <version>3.4</version>
             </dependency>
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>3.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.5.2</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -488,6 +498,21 @@
             <artifactId>jersey-common</artifactId>
             <version>${jersey.version}</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.google.http-client/google-http-client -->
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client</artifactId>
+            <version>1.22.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.5</version>
+        </dependency>
+
 
     </dependencies>
 
@@ -840,6 +865,7 @@
                             </inputSpec>
                             <language>jaxrs</language>
                             <apiPackage>io.swagger.server.api</apiPackage>
+                            <templateDirectory>src/main/resources/JavaJaxRS</templateDirectory>
                             <modelPackage>io.swagger.server.model</modelPackage>
                             <configOptions>
                                 <sourceFolder>src/gen/java/main</sourceFolder>

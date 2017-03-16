@@ -11,6 +11,11 @@ import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 
+/**
+ * Represents the tool table.
+ *
+ * The tool_id will be of the form quay.io/namespace/repo(/toolname)
+ */
 @RegisterMapper(ToolMapper.class)
 public interface ToolDAO {
 

@@ -1,7 +1,9 @@
 package io.dockstore.tooltester.client;
 
 import java.io.IOException;
+import java.util.List;
 
+import com.google.common.collect.Lists;
 import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 import io.ga4gh.reference.ServerApplication;
@@ -12,6 +14,7 @@ import io.swagger.client.api.GAGHApi;
 import io.swagger.client.api.GAGHoptionalwriteApi;
 import io.swagger.client.model.Metadata;
 import io.swagger.client.model.Tool;
+import io.swagger.client.model.ToolVersion;
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -40,6 +43,14 @@ public class ClientTest {
         tool.setToolname("test_repo");
         Tool createdTool = api.toolsPost(tool);
         Assert.assertTrue(createdTool.getOrganization().equals("dockstore-testing"));
+
+        // github repo has been created here
+        // next , create files and release
+        ToolVersion version = new ToolVersion();
+        version.setId("id");
+        version.setDescriptorType(Lists.newArrayList(ToolVersion.DescriptorTypeEnum.CWL));
+        List<ToolVersion> toolVersions = api.toolsIdVersionsPost("dockstore-testing/test_repo", version);
+        Assert.assertTrue(toolVersions.size() == 1);
     }
 
     private GAGHApi getGaghApi() {

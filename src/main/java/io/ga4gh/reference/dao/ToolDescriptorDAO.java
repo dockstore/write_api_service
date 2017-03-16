@@ -19,15 +19,17 @@ public interface ToolDescriptorDAO {
             + "descriptor clob, "
             + "type varchar(100), "
             + "descriptor_path varchar(100), "
-            + "toolversion_id varchar(100) unique references toolversion(toolversion_id)"
+            + "tool_id varchar(100), "
+            + "version varchar(100), "
+            + "foreign key(tool_id, version) references toolversion(tool_id, version) "
             + ")")
     void createToolDescriptorTable();
 
-    @SqlUpdate("insert into descriptor (toolversion_id) values (:toolversion_id)")
-    int insert(@Bind("toolversion_id") String toolVersionId);
+    @SqlUpdate("insert into descriptor (tool_id, version) values (:tool_id, :version)")
+    int insert(@Bind("tool_id") String toolId, @Bind("version") String version);
 
-    @SqlQuery("select * from descriptor where toolversion_id = :toolversion_id")
-    ToolDescriptor findById(@Bind("toolversion_id") String toolVersionId);
+    @SqlQuery("select * from descriptor where tool_id = :tool_id and version = :version")
+    ToolDescriptor findById(@Bind("tool_id") String toolId, @Bind("version") String version);
 
     @SqlQuery("select * from descriptor where toolversion_id = :toolversion_id")
     Iterator<ToolDescriptor> listToolVersionsForTool(@Bind("toolversion_id") String toolVersionId);

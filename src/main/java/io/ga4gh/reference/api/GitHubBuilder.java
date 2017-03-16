@@ -1,15 +1,24 @@
 package io.ga4gh.reference.api;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestFactory;
+import com.google.api.client.http.HttpResponse;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpStatus;
 import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.RepositoryContents;
 import org.eclipse.egit.github.core.client.GitHubClient;
@@ -101,22 +110,50 @@ public class GitHubBuilder {
         return false;
     }
 
-    public boolean createRelease(String organization, String repo) {
+    public boolean createRelease(String organization, String repo, String releaseName) {
         try {
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-            LocalDate localDate = LocalDate.now();
-            String date = dtf.format(localDate);
+            // if the release already exists, delete it first
+            try {
+                Map<String, Object> map = lowLevelGetRequest("https://api.github.com/repos/" + organization + "/" + repo + "/releases/tags/"+releaseName);
+                int releaseNumber = Double.valueOf((double)map.get("id")).intValue();
+                githubClient.delete("/repos/" + organization + "/" + repo + "/releases/" + releaseNumber);
+            } catch (RequestException e) {
+                // ignore 404s
+                if (e.getStatus() != HttpStatus.SC_NOT_FOUND){
+                    throw new RuntimeException(e);
+                }
+            }
+
             // no API for creating files on releases? weird
             HashMap<String, Object> map = new HashMap<>();
-            map.put("tag_name", date);
-            map.put("name", date);
-            githubClient.post("/repos/" + organization + "/" + repo + "/releases", map, Map.class);
+            map.put("tag_name", releaseName);
+            map.put("name", releaseName);
+            Object post = githubClient.post("/repos/" + organization + "/" + repo + "/releases", map, Map.class);
             return true;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
+    /**
+     * An annoying workaround to the issue that some github APi calls
+     * are not exposed by egit library
+     * @param url
+     * @return
+     * @throws IOException
+     */
+    private Map<String, Object> lowLevelGetRequest(String url) throws IOException {
+        NetHttpTransport transport = new NetHttpTransport.Builder().build();
+        HttpRequestFactory requestFactory = transport.createRequestFactory();
+        HttpRequest httpRequest = requestFactory
+                .buildGetRequest(new GenericUrl(url));
+        HttpResponse execute = httpRequest.execute();
+        InputStream content = execute.getContent();
+        String s = IOUtils.toString(content, StandardCharsets.UTF_8);
+        Gson gson = new Gson();
+        Type stringStringMap = new TypeToken<Map<String, Object>>(){}.getType();
+        return gson.fromJson(s, stringStringMap);
+    }
 
     public static void main(String[] args){
         GitHubBuilder builder = new GitHubBuilder(args[0]);
@@ -126,7 +163,7 @@ public class GitHubBuilder {
             builder.createRepo(organization, repo);
         }
         builder.stashFile(organization, repo, "Dockerfile", "FROM ubuntu:12.04");
-        builder.createRelease(organization, repo);
+        builder.createRelease(organization, repo, "v1");
 
     }
 }

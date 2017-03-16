@@ -16,7 +16,9 @@ public interface ToolTestDAO {
     @SqlUpdate("create table tooltest ("
             + "url varchar(100) unique, "
             + "content clob, "
-            + "toolversion_id varchar(100) unique references toolversion(toolversion_id)"
+            + "tool_id varchar(100), "
+            + "version varchar(100), "
+            + "foreign key(tool_id, version) references toolversion(tool_id, version) "
             + ")")
     void createToolTestTable();
 

@@ -82,11 +82,11 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     }
     @Override
     public Response toolsIdVersionsPost(String id, ToolVersion body, SecurityContext securityContext) throws NotFoundException {
-        int insert = toolVersionDAO.insert(id, body.getId());
+        int insert = toolVersionDAO.insert(id, body.getName());
         if (insert != 1){
             return Response.notModified().build();
         }
-        ToolVersion byId = toolVersionDAO.findById(id, body.getId());
+        ToolVersion byId = toolVersionDAO.findByToolVersion(id, body.getName());
         if (byId == null){
             return Response.notModified().build();
         }
@@ -102,8 +102,8 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     @Override
     public Response toolsIdVersionsVersionIdDockerfilePost(String id, String versionId, ToolDockerfile dockerfile, SecurityContext securityContext)
             throws NotFoundException {
-        ToolVersion byId = toolVersionDAO.findById(id, versionId);
-        //toolDockerfileDAO.insert(versionId, )
+        ToolVersion byId = toolVersionDAO.findByToolVersion(id, versionId);
+        toolDockerfileDAO.insert(versionId, dockerfile.getDockerfile());
         if (byId != null) {
             return Response.ok().entity(byId).build();
         }
@@ -113,7 +113,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
 
     @Override
     public Response toolsIdVersionsVersionIdGet(String id, String versionId, SecurityContext securityContext) throws NotFoundException {
-        ToolVersion byId = toolVersionDAO.findById(id, versionId);
+        ToolVersion byId = toolVersionDAO.findByToolVersion(id, versionId);
         if (byId == null){
             return Response.notModified().build();
         }
@@ -131,7 +131,7 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         if (update != 1){
             return Response.notModified().build();
         }
-        return Response.ok().entity(toolVersionDAO.findById(id, versionId)).build();
+        return Response.ok().entity(toolVersionDAO.findByToolVersion(id, versionId)).build();
     }
 
     @Override

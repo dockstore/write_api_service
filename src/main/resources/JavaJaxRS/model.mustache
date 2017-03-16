@@ -1,0 +1,27 @@
+{{>licenseInfo}}
+
+package {{package}};
+
+{{^supportJava6}}
+import java.util.Objects;
+{{/supportJava6}}
+{{#supportJava6}}
+{{/supportJava6}}
+{{#imports}}import {{import}};
+{{/imports}}
+{{#serializableModel}}
+import java.io.Serializable;
+{{/serializableModel}}
+{{#useBeanValidation}}
+import javax.validation.constraints.*;
+{{/useBeanValidation}}
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import org.apache.commons.lang3.ObjectUtils;
+
+{{#models}}
+{{#model}}
+@JsonNaming(PropertyNamingStrategy.KebabCaseStrategy.class)
+{{#isEnum}}{{>modelEnum}}{{/isEnum}}{{^isEnum}}{{>pojo}}{{/isEnum}}
+{{/model}}
+{{/models}}

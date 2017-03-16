@@ -18,7 +18,9 @@ public interface ToolDockerfileDAO {
     @SqlUpdate("create table dockerfile ("
             + "url varchar(100) unique, "
             + "dockerfile clob, "
-            + "toolversion_id varchar(100) unique references toolversion(toolversion_id)"
+            + "tool_id varchar(100), "
+            + "version varchar(100), "
+            + "foreign key(tool_id, version) references toolversion(tool_id, version) "
             + ")")
     void createToolDockerfileTable();
 

@@ -2,6 +2,9 @@ package io.ga4gh.reference;
 
 import java.util.EnumSet;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import io.dropwizard.Application;
 import io.dropwizard.jdbi.DBIFactory;
 import io.dropwizard.setup.Bootstrap;
@@ -11,6 +14,7 @@ import io.ga4gh.reference.api.QuayIoBuilder;
 import io.ga4gh.reference.dao.ToolDAO;
 import io.ga4gh.reference.dao.ToolDescriptorDAO;
 import io.ga4gh.reference.dao.ToolDockerfileDAO;
+import io.ga4gh.reference.dao.ToolTestDAO;
 import io.ga4gh.reference.dao.ToolVersionDAO;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
@@ -53,7 +57,7 @@ public class ServerApplication extends Application<ServerConfiguration>{
         beanConfig.setSchemes(new String[] { "http" });
         beanConfig.setHost("localhost:8080");
         beanConfig.setBasePath("/");
-        beanConfig.setResourcePackage("io.swagger.api");
+        beanConfig.setResourcePackage("io.swagger.server.api");
         beanConfig.setScan(true);
 
         final DBIFactory factory = new DBIFactory();
@@ -62,6 +66,7 @@ public class ServerApplication extends Application<ServerConfiguration>{
         final ToolVersionDAO toolVersionDAO = jdbi.onDemand(ToolVersionDAO.class);
         final ToolDescriptorDAO toolDescriptorDAO = jdbi.onDemand(ToolDescriptorDAO.class);
         final ToolDockerfileDAO toolDockerfileDAO = jdbi.onDemand(ToolDockerfileDAO.class);
+        final ToolTestDAO toolTestDAO = jdbi.onDemand(ToolTestDAO.class);
 
         GitHubBuilder gitHubBuilder = new GitHubBuilder(configuration.getGithubToken());
         QuayIoBuilder quayIoBuilder = new QuayIoBuilder(configuration.getQuayioTokenToken());
@@ -80,6 +85,7 @@ public class ServerApplication extends Application<ServerConfiguration>{
                 toolVersionDAO.createToolVersionTable();
                 toolDescriptorDAO.createToolDescriptorTable();
                 toolDockerfileDAO.createToolDockerfileTable();
+                toolTestDAO.createToolTestTable();
             }
         }
 
@@ -106,6 +112,11 @@ public class ServerApplication extends Application<ServerConfiguration>{
         environment.jersey().register(ApiListingResource.class);
         environment.jersey().register(SwaggerSerializers.class);
 
+        final ObjectMapper mapper = environment.getObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.KEBAB_CASE);
+
+
         // optional CORS support
         // Enable CORS headers
         final FilterHolder filterHolder = environment.getApplicationContext().addFilter(CrossOriginFilter.class, "/*", EnumSet.of(REQUEST));
@@ -117,7 +128,7 @@ public class ServerApplication extends Application<ServerConfiguration>{
                 "Authorization, X-Auth-Username, X-Auth-Password, X-Requested-With,Content-Type,Accept,Origin,Access-Control-Request-Headers,cache-control");
     }
 
-    public void dropTableQuietly(Handle h, String tableName){
+    private void dropTableQuietly(Handle h, String tableName){
         try {
             h.execute("drop table " + tableName);
         }catch(Exception e){
