@@ -156,18 +156,25 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     @Override
     public Response toolsIdVersionsVersionIdTypeDescriptorPost(String type, String id, String versionId, ToolDescriptor body, SecurityContext securityContext)
             throws NotFoundException {
-        return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
+        toolDescriptorDAO.insert(id, versionId, type);
+        // TODO: improve this, this looks slow and awkward
+        ToolDescriptor byId = toolDescriptorDAO.findById(id, versionId, type);
+        toolDescriptorDAO.update(byId, versionId, byId.getUrl());
+        byId = toolDescriptorDAO.findById(id, versionId, type);
+        return Response.ok().entity(byId).build();
     }
 
     @Override
     public Response toolsIdVersionsVersionIdTypeDescriptorRelativePathGet(String type, String id, String versionId, String relativePath, SecurityContext securityContext) throws NotFoundException {
-        // do some magic!
-        return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
+        ToolDescriptor byPath = toolDescriptorDAO.findByPath(id, versionId, relativePath);
+        return Response.ok().entity(byPath).build();
     }
 
     @Override
     public Response toolsIdVersionsVersionIdTypeDescriptorRelativePathPost(String type, String id, String versionId, String relativePath
             , ToolDescriptor body, SecurityContext securityContext) throws NotFoundException {
+        // hook up to github
+
         return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
     }
 

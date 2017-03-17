@@ -18,6 +18,7 @@ public class ToolDescriptorMapper implements ResultSetMapper<ToolDescriptor> {
         toolDescriptor.setUrl(resultSet.getString("url"));
         toolDescriptor.setDescriptor(resultSet.getString("descriptor"));
         toolDescriptor.setType(ToolDescriptor.TypeEnum.valueOf(resultSet.getString("type")));
+        toolDescriptor.setUrl(resultSet.getString("descriptor_path"));
         return toolDescriptor;
     }
 }

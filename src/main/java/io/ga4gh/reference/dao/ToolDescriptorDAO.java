@@ -25,20 +25,23 @@ public interface ToolDescriptorDAO {
             + ")")
     void createToolDescriptorTable();
 
-    @SqlUpdate("insert into descriptor (tool_id, version) values (:tool_id, :version)")
-    int insert(@Bind("tool_id") String toolId, @Bind("version") String version);
+    @SqlUpdate("insert into descriptor (tool_id, version, type) values (:tool_id, :version, :type)")
+    int insert(@Bind("tool_id") String toolId, @Bind("version") String version, @Bind("type") String type);
 
     @SqlQuery("select * from descriptor where tool_id = :tool_id and version = :version and type = :type")
     ToolDescriptor findById(@Bind("tool_id") String toolId, @Bind("version") String version, @Bind("type") String type);
 
+    @SqlQuery("select * from descriptor where tool_id = :tool_id and version = :version and descriptor_path = :descriptor_path")
+    ToolDescriptor findByPath(@Bind("tool_id") String toolId, @Bind("version") String version, @Bind("descriptor_path") String descriptor_path);
+
     @SqlQuery("select * from descriptor where toolversion_id = :toolversion_id")
-    Iterator<ToolDescriptor> listToolVersionsForTool(@Bind("toolversion_id") String toolVersionId);
+    Iterator<ToolDescriptor> listDescriptorsForTool(@Bind("toolversion_id") String toolVersionId);
 
     @SqlUpdate("update descriptor set "
             + "url = :url,"
             + "type = :type,"
             + "descriptor_path = :descriptor_path,"
             + " where toolversion_id = :toolversion_id and descriptor_path = :descriptor_path")
-    int update(@BindBean ToolDescriptor t, @Bind("descriptor_path") String path, @Bind("toolversion_id") String toolVersionId);
+    int update(@BindBean ToolDescriptor t, @Bind("toolversion_id") String toolVersionId, @Bind("descriptor_path") String path);
 
 }
