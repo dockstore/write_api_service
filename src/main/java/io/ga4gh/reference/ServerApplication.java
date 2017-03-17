@@ -68,8 +68,11 @@ public class ServerApplication extends Application<ServerConfiguration>{
         final ToolDockerfileDAO toolDockerfileDAO = jdbi.onDemand(ToolDockerfileDAO.class);
         final ToolTestDAO toolTestDAO = jdbi.onDemand(ToolTestDAO.class);
 
-        GitHubBuilder gitHubBuilder = new GitHubBuilder(configuration.getGithubToken());
-        QuayIoBuilder quayIoBuilder = new QuayIoBuilder(configuration.getQuayioTokenToken());
+        String githubToken = System.getenv().getOrDefault("githubToken", configuration.getGithubToken());
+        String quayioToken = System.getenv().getOrDefault("quayioToken", configuration.getQuayioToken());
+
+        GitHubBuilder gitHubBuilder = new GitHubBuilder(githubToken);
+        QuayIoBuilder quayIoBuilder = new QuayIoBuilder(quayioToken);
 
         try(Handle h = jdbi.open()){
             String createdbString = configuration.getDataSourceFactory().getProperties().getOrDefault("createdb", "false");

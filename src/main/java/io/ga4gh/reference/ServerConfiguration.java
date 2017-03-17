@@ -30,7 +30,7 @@ public class ServerConfiguration extends Configuration {
     @JsonProperty
     private String quayioToken;
 
-    public String getQuayioTokenToken() {
+    public String getQuayioToken() {
         return quayioToken;
     }
 }

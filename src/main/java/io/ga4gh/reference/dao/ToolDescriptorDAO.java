@@ -28,8 +28,8 @@ public interface ToolDescriptorDAO {
     @SqlUpdate("insert into descriptor (tool_id, version) values (:tool_id, :version)")
     int insert(@Bind("tool_id") String toolId, @Bind("version") String version);
 
-    @SqlQuery("select * from descriptor where tool_id = :tool_id and version = :version")
-    ToolDescriptor findById(@Bind("tool_id") String toolId, @Bind("version") String version);
+    @SqlQuery("select * from descriptor where tool_id = :tool_id and version = :version and type = :type")
+    ToolDescriptor findById(@Bind("tool_id") String toolId, @Bind("version") String version, @Bind("type") String type);
 
     @SqlQuery("select * from descriptor where toolversion_id = :toolversion_id")
     Iterator<ToolDescriptor> listToolVersionsForTool(@Bind("toolversion_id") String toolVersionId);

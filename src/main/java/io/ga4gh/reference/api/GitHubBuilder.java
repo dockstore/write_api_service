@@ -21,9 +21,12 @@ import com.google.gson.Gson;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.eclipse.egit.github.core.Repository;
+import org.eclipse.egit.github.core.RepositoryCommit;
 import org.eclipse.egit.github.core.RepositoryContents;
+import org.eclipse.egit.github.core.RepositoryId;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.client.RequestException;
+import org.eclipse.egit.github.core.service.CommitService;
 import org.eclipse.egit.github.core.service.ContentsService;
 import org.eclipse.egit.github.core.service.DataService;
 import org.eclipse.egit.github.core.service.OrganizationService;
@@ -45,6 +48,7 @@ public class GitHubBuilder {
     private final ContentsService cService;
     private final RepositoryService service;
     private final DataService dService;
+    private final CommitService commitService;
 
     public GitHubBuilder(String token){
         this.githubClient = new GitHubClient();
@@ -55,6 +59,7 @@ public class GitHubBuilder {
         service = new RepositoryService(githubClient);
         cService = new ContentsService(githubClient);
         dService = new DataService(githubClient);
+        commitService = new CommitService(githubClient);
     }
 
 
@@ -111,13 +116,14 @@ public class GitHubBuilder {
         return false;
     }
 
-    public boolean createRelease(String organization, String repo, String releaseName) {
+    public boolean createBranchAndRelease(String organization, String repo, String releaseName) {
         try {
-            // if the release already exists, delete it first
             try {
                 Map<String, Object> map = lowLevelGetRequest("https://api.github.com/repos/" + organization + "/" + repo + "/releases/tags/"+releaseName);
                 int releaseNumber = Double.valueOf((double)map.get("id")).intValue();
+                // delete the release
                 githubClient.delete("/repos/" + organization + "/" + repo + "/releases/" + releaseNumber);
+                // delete the tag (makes the next release "stay" in the wrong place)
                 githubClient.delete("/repos/" + organization + "/" + repo + "/git/refs/tags/" + releaseName);
             } catch (HttpResponseException e) {
                 // ignore 404s
@@ -125,12 +131,36 @@ public class GitHubBuilder {
                     throw new RuntimeException(e);
                 }
             }
+            // find out the default branch and branch version from there
+            Repository repository = service.getRepository(organization, repo);
+            String stringId = repository.generateId();
+            String defaultBranch = repository.getDefaultBranch();
+            RepositoryId fromId = RepositoryId.createFromId(stringId);
+            // might use reference later, but cannot figure out how to "target" a reference for branching
+            //Reference reference = dService.getReference(fromId, "heads/" + defaultBranch);
+
+            List<RepositoryCommit> commits = commitService.getCommits(fromId);
+            // found latest sha
+            RepositoryCommit repositoryCommit = commits.get(commits.size() - 1);
+
+            try {
+                // create branch if needed
+                HashMap<String, Object> branchMap = new HashMap<>();
+                branchMap.put("ref", "refs/heads/" + releaseName);
+                branchMap.put("sha", repositoryCommit.getSha());
+                Object post1 = githubClient.post("/repos/" + organization + "/" + repo + "/git/refs", branchMap, Map.class);
+            } catch (RequestException e){
+                // ignore exceptions if reference already exists
+                if (!e.getMessage().contains("Reference already exists")){
+                    throw new RuntimeException(e);
+                }
+            }
 
             // no API for creating files on releases? weird
-            HashMap<String, Object> map = new HashMap<>();
-            map.put("tag_name", releaseName);
-            map.put("name", releaseName);
-            Object post = githubClient.post("/repos/" + organization + "/" + repo + "/releases", map, Map.class);
+            HashMap<String, Object> releaseMap = new HashMap<>();
+            releaseMap.put("tag_name", releaseName);
+            releaseMap.put("name", releaseName);
+            Object post2 = githubClient.post("/repos/" + organization + "/" + repo + "/releases", releaseMap, Map.class);
             return true;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -165,7 +195,7 @@ public class GitHubBuilder {
             builder.createRepo(organization, repo);
         }
         builder.stashFile(organization, repo, "Dockerfile", "FROM ubuntu:12.04");
-        builder.createRelease(organization, repo, "v1");
+        builder.createBranchAndRelease(organization, repo, "v1");
 
     }
 }

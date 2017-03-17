@@ -83,9 +83,9 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     @Override
     public Response toolsIdVersionsPost(String id, ToolVersion body, SecurityContext securityContext) throws NotFoundException {
         // refresh the release on github
-        //gitHubBuilder.createRelease(, , body.getName());
+        //gitHubBuilder.createBranchAndRelease(, , body.getName());
         String[] split = id.split("/");
-        gitHubBuilder.createRelease(split[0], split[1], body.getName());
+        gitHubBuilder.createBranchAndRelease(split[0], split[1], body.getName());
         int insert = toolVersionDAO.insert(id, body.getName());
         if (insert != 1){
             return Response.notModified().build();
@@ -98,9 +98,8 @@ public class ToolsApiServiceImpl extends ToolsApiService {
     }
     @Override
     public Response toolsIdVersionsVersionIdDockerfileGet(String id, String versionId, SecurityContext securityContext) throws NotFoundException {
-
-        // do some magic!
-        return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
+        ToolDockerfile byId = toolDockerfileDAO.findById(id, versionId);
+        return Response.ok().entity(byId).build();
     }
 
     @Override
@@ -110,12 +109,11 @@ public class ToolsApiServiceImpl extends ToolsApiService {
         String organization = split[0];
         String repo = split[1];
         gitHubBuilder.stashFile(organization, repo, "Dockerfile", dockerfile.getDockerfile());
-        gitHubBuilder.createRelease(organization, repo, versionId);
+        gitHubBuilder.createBranchAndRelease(organization, repo, versionId);
         if (!quayIoBuilder.repoExists(organization, repo)) {
             quayIoBuilder.createRepo(organization, repo, repo);
         }
         quayIoBuilder.triggerBuild(organization, organization, repo, repo, versionId);
-
 
         toolDockerfileDAO.insert(id, versionId, dockerfile.getDockerfile());
         ToolDockerfile created = toolDockerfileDAO.findById(id, versionId);
@@ -151,8 +149,8 @@ public class ToolsApiServiceImpl extends ToolsApiService {
 
     @Override
     public Response toolsIdVersionsVersionIdTypeDescriptorGet(String type, String id, String versionId, SecurityContext securityContext) throws NotFoundException {
-        // do some magic!
-        return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "magic!")).build();
+        ToolDescriptor byId = toolDescriptorDAO.findById(id, versionId, type);
+        return Response.ok().entity(byId).build();
     }
 
     @Override

@@ -1,11 +1,9 @@
 package io.ga4gh.reference.dao;
 
 
-import java.util.Iterator;
 
 import io.ga4gh.reference.mapper.ToolDockerfileMapper;
 import io.swagger.server.model.ToolDockerfile;
-import io.swagger.server.model.ToolVersion;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.BindBean;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
