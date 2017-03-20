@@ -22,7 +22,7 @@ mvn clean install -DskipTests
 
 You can also run ClientTests to create GitHub and Quay.io repos while also scheduling a build. 
 
-The basic workflow is that github repos are created when posting a new tool. When files are posted or put to a version of a tool, we will create or delete and re-create a GitHub release with a matching name. When Dockerfiles are added, the tool will be created and built as a quay.io repo. 
+The basic workflow is that github repos are created when posting a new tool. When files are posted or put to a version of a tool, we will create or delete and re-create a GitHub release with a matching name. When Dockerfiles are added, the tool will be created and built as a quay.io repo. After adding both dockerfiles and descriptors, you basically have a tool that is ready to be quick registered under a Dockstore 1.2 web service. Go to Dockstore, do a refresh, and then hit quick register on the repos that you wish to publish. You can also do this programmatically. 
 
 ## Limitations
 
@@ -32,3 +32,4 @@ It also has the following limitations
 
 1. The service lacks a GUI and is purely a tool provided for developers doing conversion
 2. A full implementation awaits testing
+3. It is not possible to create build triggers in Quay.io programmatically at this time. So new refresh code in Dockstore 1.2 is required. 
