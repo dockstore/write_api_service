@@ -5,7 +5,7 @@ This is an experimental service aimed at two tasks
 2) Providing a utility for developers to convert plain CWL/WDL files and Dockerfiles into [GitHub](https://github.com) repos storing those plain CWL/WDL files and [quay.io](https://quay.io) repos storing Docker images built from those Dockerfiles. This can be used by those converting tools described in other formats into "Dockstore-friendly" tools that can be quickly registered in Dockstore by logging in, doing a refresh, and doing [quick registration via the API](https://dockstore.org/docs/getting-started-with-dockstore#register-your-tool-in-dockstore) or programmatically via the Dockstore API. 
 
 
-## Usage
+## Usage 
 
 Currently, spin up the web service after providing github and quay.io tokens via a [configuration file](https://github.com/dockstore/write_api_service/blob/master/src/main/resources/example.yml) or environment variables. For environment variables you can do the following in Bash
 ```
@@ -15,9 +15,10 @@ export githubToken=<your token here>
 
 Learn how to create tokens on GitHub [here](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/). You will need the scope "repo". Find out your Quay.io token by a more complex route. Go to Quay.io [here](https://docs.quay.io/api/swagger/#!/repository/listRepos), select the on/off button and allow for "repo:write", "repo:read" and "repo:create" scope. For Chrome or Chromium, then open up Developer tools and issue a call to list repositories. If you look at the Network tab and Request Headers, you'll find your token under "authorization: Bearer (your token here)".
 
-After setting your tokens, do a build 
+To run the service, build it and then run it using a configuration file:
 ```
 mvn clean install -DskipTests
+java -jar target/tool-registry-reference-*.jar server example.yml
 ```
 
 You can also run ClientTests to create GitHub and Quay.io repos while also scheduling a build. 
