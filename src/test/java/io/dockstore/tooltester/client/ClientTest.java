@@ -1,7 +1,6 @@
 package io.dockstore.tooltester.client;
 
 import java.io.IOException;
-import java.util.List;
 
 import com.google.common.collect.Lists;
 import io.dropwizard.testing.ResourceHelpers;
@@ -22,6 +21,14 @@ import org.junit.Test;
 
 public class ClientTest {
 
+    // these constants should be changed if you wish to run tests.
+    // TODO: pre-emptively check that these are valid names for both quay.io and github
+
+    // an organization for both GitHub and Quay.io where repos will be created (and deleted)
+    public static final String ORGANIZATION_NAME = "dockstore-testing";
+    // repo name for GitHub and Quay.io, this repo will be created and deleted
+    public static final String REPO_NAME = "test_repo";
+
     @ClassRule
     public static final DropwizardAppRule<ServerConfiguration> RULE = new DropwizardAppRule<>(
             ServerApplication.class, ResourceHelpers.resourceFilePath("ref.yml"));
@@ -41,11 +48,11 @@ public class ClientTest {
 
         GAGHoptionalwriteApi api = getGaghOptionalApi();
         Tool tool = new Tool();
-        tool.setId("dockstore-testing/test_repo");
-        tool.setOrganization("dockstore-testing");
+        tool.setId(ORGANIZATION_NAME + "/" + REPO_NAME);
+        tool.setOrganization(ORGANIZATION_NAME);
         tool.setToolname("test_repo");
         Tool createdTool = api.toolsPost(tool);
-        Assert.assertTrue(createdTool.getOrganization().equals("dockstore-testing"));
+        Assert.assertTrue(createdTool.getOrganization().equals(ORGANIZATION_NAME));
 
         // github repo has been created by now
         // next create release
@@ -53,12 +60,12 @@ public class ClientTest {
         version.setId("id");
         version.setName(toolVersionNumber);
         version.setDescriptorType(Lists.newArrayList(ToolVersion.DescriptorTypeEnum.CWL));
-        ToolVersion toolVersion = api.toolsIdVersionsPost("dockstore-testing/test_repo", version);
+        ToolVersion toolVersion = api.toolsIdVersionsPost(ORGANIZATION_NAME + "/" +REPO_NAME, version);
         Assert.assertTrue(toolVersion != null);
         // create files, this should trigger a quay.io build
         ToolDockerfile toolDockerfile = new ToolDockerfile();
         toolDockerfile.setDockerfile("FROM ubuntu:12.04");
-        ToolDockerfile returnedDockerfile = api.toolsIdVersionsVersionIdDockerfilePost("dockstore-testing/test_repo", toolVersionNumber, toolDockerfile);
+        ToolDockerfile returnedDockerfile = api.toolsIdVersionsVersionIdDockerfilePost(ORGANIZATION_NAME + "/" +REPO_NAME, toolVersionNumber, toolDockerfile);
         Assert.assertTrue(returnedDockerfile != null);
     }
 

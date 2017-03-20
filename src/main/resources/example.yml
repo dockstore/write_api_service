@@ -1,3 +1,10 @@
+githubToken: dummy-token
+quayioToken: dummy-token
+
+server:
+  rootPath: /api/ga4gh/v1
+
+
 database:
 
   # the name of your JDBC driver
