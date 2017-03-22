@@ -32,7 +32,7 @@ public interface ToolDescriptorDAO {
     ToolDescriptor findById(@Bind("tool_id") String toolId, @Bind("version") String version, @Bind("type") String type);
 
     @SqlQuery("select * from descriptor where tool_id = :tool_id and version = :version and descriptor_path = :descriptor_path")
-    ToolDescriptor findByPath(@Bind("tool_id") String toolId, @Bind("version") String version, @Bind("descriptor_path") String descriptor_path);
+    ToolDescriptor findByPath(@Bind("tool_id") String toolId, @Bind("version") String version, @Bind("descriptor_path") String descriptorPath);
 
     @SqlQuery("select * from descriptor where toolversion_id = :toolversion_id")
     Iterator<ToolDescriptor> listDescriptorsForTool(@Bind("toolversion_id") String toolVersionId);

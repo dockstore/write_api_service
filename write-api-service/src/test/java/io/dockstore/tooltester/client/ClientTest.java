@@ -27,7 +27,7 @@ public class ClientTest {
     // an organization for both GitHub and Quay.io where repos will be created (and deleted)
     public static final String ORGANIZATION_NAME = "dockstore-testing";
     // repo name for GitHub and Quay.io, this repo will be created and deleted
-    public static final String REPO_NAME = "test_repo";
+    public static final String REPO_NAME = "test_repo2";
 
     @ClassRule
     public static final DropwizardAppRule<ServerConfiguration> RULE = new DropwizardAppRule<>(
@@ -50,7 +50,7 @@ public class ClientTest {
         Tool tool = new Tool();
         tool.setId(ORGANIZATION_NAME + "/" + REPO_NAME);
         tool.setOrganization(ORGANIZATION_NAME);
-        tool.setToolname("test_repo");
+        tool.setToolname(REPO_NAME);
         Tool createdTool = api.toolsPost(tool);
         Assert.assertTrue(createdTool.getOrganization().equals(ORGANIZATION_NAME));
 

@@ -3,8 +3,8 @@ package io.ga4gh.reference;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import io.dropwizard.Configuration;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.dropwizard.Configuration;
 import io.dropwizard.db.DataSourceFactory;
 
 /**
@@ -15,20 +15,18 @@ public class ServerConfiguration extends Configuration {
     @NotNull
     @JsonProperty
     private DataSourceFactory database = new DataSourceFactory();
+    @JsonProperty
+    private String githubToken;
+    @JsonProperty
+    private String quayioToken;
 
     public DataSourceFactory getDataSourceFactory() {
         return database;
     }
 
-    @JsonProperty
-    private String githubToken;
-
     public String getGithubToken() {
         return githubToken;
     }
-
-    @JsonProperty
-    private String quayioToken;
 
     public String getQuayioToken() {
         return quayioToken;

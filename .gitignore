@@ -1,4 +1,26 @@
-target/
+*.iml
+.idea
+*.class
+*.swp
+
+# Contains SQL statements to initialize testing DB with a confidential user and tokens
+# Contains SQL statements to initialize testing DB with a confidential user, assuming they followed the dockstore setup tutorial
+*.sql
+
+*.gradle
+gradle.properties
+AndroidManifest.xml
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+**/target/
+write-api-service/derbyDB
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
@@ -8,3 +30,4 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 src/test/resources/ref.yml
+derby.log

@@ -32,14 +32,24 @@ public class QuayIoBuilder {
     private final CloseableHttpClient httpClient;
     private final String token;
 
-    public QuayIoBuilder(String token){
+    public QuayIoBuilder(String token) {
         apiClient = Configuration.getDefaultApiClient();
         apiClient.addDefaultHeader("Authorization", "Bearer " + token);
         this.httpClient = HttpClientBuilder.create().build();
         this.token = token;
     }
 
-    public boolean triggerBuild(String githubOrg, String quayOrg, String gitRepo, String quayRepo, String release){
+    public static void main(String[] args) {
+        QuayIoBuilder builder = new QuayIoBuilder(args[0]);
+        if (!builder.repoExists("denis_yuen", "test")) {
+            builder.createRepo("denis_yuen", "test", "test_repo");
+        }
+        if (!builder.triggerBuild("denis-yuen", "denis_yuen", "test_repo", "test", "2017.03.08")) {
+            throw new RuntimeException("Could not trigger build, please check your credentials");
+        }
+    }
+
+    public boolean triggerBuild(String githubOrg, String quayOrg, String gitRepo, String quayRepo, String release) {
         try {
             BuildApi buildApi = new BuildApi(apiClient);
             final String repo = quayOrg + '/' + quayRepo;
@@ -51,19 +61,8 @@ public class QuayIoBuilder {
             request.setDockerTags(tags);
             buildApi.requestRepoBuild(repo, request);
             return true;
-        } catch(Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
-        }
-    }
-
-
-    public static void main(String[] args){
-        QuayIoBuilder builder = new QuayIoBuilder(args[0]);
-        if (!builder.repoExists("denis_yuen", "test")) {
-            builder.createRepo("denis_yuen", "test", "test_repo");
-        }
-        if (!builder.triggerBuild("denis-yuen", "denis_yuen","test_repo","test", "2017.03.08")){
-            throw new RuntimeException("Could not trigger build, please check your credentials");
         }
     }
 
@@ -78,12 +77,8 @@ public class QuayIoBuilder {
         newRepo.setNamespace(namespace);
         newRepo.setRepository(quayRepo);
         newRepo.setVisibility(NewRepo.VisibilityEnum.PUBLIC);
-        newRepo.setDescription("GA4GH auto-managed repo\n\n\n"
-                + "This is an example repository."
-                + "\n\n" + "----------  \n"
-                + "[GA4GH-generated-do-not-edit]: <> ("
-                + gson.toJson(infoMap)
-                + ")");
+        newRepo.setDescription("GA4GH auto-managed repo\n\n\n" + "This is an example repository." + "\n\n" + "----------  \n"
+                + "[GA4GH-generated-do-not-edit]: <> (" + gson.toJson(infoMap) + ")");
         try {
             api.createRepo(newRepo);
             return true;

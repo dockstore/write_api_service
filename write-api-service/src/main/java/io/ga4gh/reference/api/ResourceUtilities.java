@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by dyuen on 1/26/17.
  */
-public class ResourceUtilities {
+public final class ResourceUtilities {
     private static final Logger LOG = LoggerFactory.getLogger(ResourceUtilities.class);
 
     private ResourceUtilities() {

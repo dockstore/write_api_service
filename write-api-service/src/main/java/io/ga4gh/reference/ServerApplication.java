@@ -37,7 +37,7 @@ import static org.eclipse.jetty.servlets.CrossOriginFilter.ALLOWED_ORIGINS_PARAM
 /**
  *
  */
-public class ServerApplication extends Application<ServerConfiguration>{
+public class ServerApplication extends Application<ServerConfiguration> {
     public static void main(String[] args) throws Exception {
         new ServerApplication().run(args);
     }
@@ -74,7 +74,7 @@ public class ServerApplication extends Application<ServerConfiguration>{
         GitHubBuilder gitHubBuilder = new GitHubBuilder(githubToken);
         QuayIoBuilder quayIoBuilder = new QuayIoBuilder(quayioToken);
 
-        try(Handle h = jdbi.open()){
+        try (Handle h = jdbi.open()) {
             String createdbString = configuration.getDataSourceFactory().getProperties().getOrDefault("createdb", "false");
             boolean freshStart = Boolean.valueOf(createdbString);
             if (freshStart) {
@@ -99,7 +99,6 @@ public class ServerApplication extends Application<ServerConfiguration>{
         ToolsApiServiceFactory.setGitHubBuilder(gitHubBuilder);
         ToolsApiServiceFactory.setQuayIoBuilder(quayIoBuilder);
 
-
         final TemplateHealthCheck healthCheck = new TemplateHealthCheck("Hello %s!");
         environment.healthChecks().register("template", healthCheck);
 
@@ -119,7 +118,6 @@ public class ServerApplication extends Application<ServerConfiguration>{
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.setPropertyNamingStrategy(PropertyNamingStrategy.KEBAB_CASE);
 
-
         // optional CORS support
         // Enable CORS headers
         final FilterHolder filterHolder = environment.getApplicationContext().addFilter(CrossOriginFilter.class, "/*", EnumSet.of(REQUEST));
@@ -131,10 +129,10 @@ public class ServerApplication extends Application<ServerConfiguration>{
                 "Authorization, X-Auth-Username, X-Auth-Password, X-Requested-With,Content-Type,Accept,Origin,Access-Control-Request-Headers,cache-control");
     }
 
-    private void dropTableQuietly(Handle h, String tableName){
+    private void dropTableQuietly(Handle h, String tableName) {
         try {
             h.execute("drop table " + tableName);
-        }catch(Exception e){
+        } catch (Exception e) {
             // do nothing if the table does not already exist
             System.out.println(e.getMessage());
         }
