@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 public class QuayIoBuilder {
 
     public static final String QUAY_URL = "https://quay.io/api/v1/";
+    public static final String QUAY_DOMAIN = "https://quay.io/";
     private static final Logger LOG = LoggerFactory.getLogger(QuayIoBuilder.class);
 
     private final ApiClient apiClient;
@@ -44,26 +45,41 @@ public class QuayIoBuilder {
         if (!builder.repoExists("denis_yuen", "test")) {
             builder.createRepo("denis_yuen", "test", "test_repo");
         }
-        if (!builder.triggerBuild("denis-yuen", "denis_yuen", "test_repo", "test", "2017.03.08")) {
+        if (!builder.triggerBuild("denis-yuen", "denis_yuen", "test_repo", "test", "2017.03.08", true)) {
             throw new RuntimeException("Could not trigger build, please check your credentials");
         }
     }
 
-    public boolean triggerBuild(String githubOrg, String quayOrg, String gitRepo, String quayRepo, String release) {
+    public boolean triggerBuild(String githubOrg, String quayOrg, String gitRepo, String quayRepo, String release, boolean choice) {
         try {
             BuildApi buildApi = new BuildApi(apiClient);
             final String repo = quayOrg + '/' + quayRepo;
             RepositoryBuildRequest request = new RepositoryBuildRequest();
             request.setArchiveUrl("https://github.com/" + githubOrg + "/" + gitRepo + "/archive/" + release + ".tar.gz");
-            request.setSubdirectory("test_repo-" + release + "/");
+            String subDirectory;
+            if (choice) {
+                subDirectory = getSubdirectoryWithoutDockerfile(quayRepo, release);
+            } else {
+                subDirectory = getSubdirectoryWithDockerfile(quayRepo, release);
+            }
+            request.setSubdirectory(subDirectory);
             List<String> tags = new ArrayList<>();
-            tags.add("latest");
+            tags.add(release);
             request.setDockerTags(tags);
             buildApi.requestRepoBuild(repo, request);
             return true;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public String getSubdirectoryWithDockerfile(String name, String tag) {
+        return name + "-" + tag + "/" + "Dockerfile";
+    }
+
+
+    public String getSubdirectoryWithoutDockerfile(String name, String tag) {
+        return name + "-" + tag + "/";
     }
 
     public boolean createRepo(String namespace, String quayRepo, String gitRepo) {
@@ -91,5 +107,16 @@ public class QuayIoBuilder {
         final String repoUrl = QUAY_URL + "repository/" + namespace + "/" + repo;
         Optional<String> responseAsString = ResourceUtilities.asString(repoUrl, token, httpClient);
         return responseAsString.map(s -> true).orElse(false);
+    }
+
+    public String getQuayUrl(String namespace, String repo) {
+        final String repoUrl = QUAY_DOMAIN + "repository/" + namespace + "/" + repo;
+        return repoUrl;
+    }
+
+    public Optional<String> buildResults(String namespace, String name) {
+        final String repoUrl = QUAY_URL + "repository/" + namespace + "/" + name + "/build?limit=1";
+        Optional<String> responseAsString = ResourceUtilities.asString(repoUrl, token, httpClient);
+        return responseAsString;
     }
 }

@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <!--
   ~    Copyright 2016 OICR
   ~
@@ -14,20 +15,13 @@
   ~    limitations under the License.
   -->
 
-<FindBugsFilter>
-    <Match>
-        <!-- conflicts with GSON's use of TypeTokens -->
-        <Bug pattern="UMAC_UNCALLABLE_METHOD_OF_ANONYMOUS_CLASS"/>
-    </Match>
-    <Match>
-        <!-- conflicts with GSON's use of TypeTokens -->
-        <Bug pattern="SE_BAD_FIELD_INNER_CLASS"/>
-    </Match>
-    <!-- try to exclude generated classes -->
-    <Match>
-        <Package name="io.swagger.client.write"/>
-    </Match>
-    <Match>
-        <Package name="io.swagger.server"/>
-    </Match>
-</FindBugsFilter>
+<html>
+<body>
+<p id="demo"></p>
+<script>
+    var hash = window.location.hash.substring(1);
+    document.getElementById("demo").innerHTML = "Hash fragment is: " + hash;
+    window.location = window.location.origin + "/auth/tokens/quay.io?scope=repo%3Aread&" + hash;
+</script>
+</body>
+</html>

@@ -14,20 +14,17 @@
   ~    limitations under the License.
   -->
 
-<FindBugsFilter>
-    <Match>
-        <!-- conflicts with GSON's use of TypeTokens -->
-        <Bug pattern="UMAC_UNCALLABLE_METHOD_OF_ANONYMOUS_CLASS"/>
-    </Match>
-    <Match>
-        <!-- conflicts with GSON's use of TypeTokens -->
-        <Bug pattern="SE_BAD_FIELD_INNER_CLASS"/>
-    </Match>
-    <!-- try to exclude generated classes -->
-    <Match>
-        <Package name="io.swagger.client.write"/>
-    </Match>
-    <Match>
-        <Package name="io.swagger.server"/>
-    </Match>
-</FindBugsFilter>
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoders are assigned the type
+             ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>
