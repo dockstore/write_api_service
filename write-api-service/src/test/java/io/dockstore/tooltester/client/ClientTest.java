@@ -7,16 +7,17 @@ import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 import io.ga4gh.reference.ServerApplication;
 import io.ga4gh.reference.ServerConfiguration;
-import io.swagger.client.ApiClient;
-import io.swagger.client.ApiException;
-import io.swagger.client.api.GAGHApi;
-import io.swagger.client.api.GAGHoptionalwriteApi;
-import io.swagger.client.model.Metadata;
-import io.swagger.client.model.Tool;
-import io.swagger.client.model.ToolDockerfile;
-import io.swagger.client.model.ToolVersion;
+import io.swagger.client.write.ApiClient;
+import io.swagger.client.write.ApiException;
+import io.swagger.client.write.api.GAGHApi;
+import io.swagger.client.write.api.GAGHoptionalwriteApi;
+import io.swagger.client.write.model.Metadata;
+import io.swagger.client.write.model.Tool;
+import io.swagger.client.write.model.ToolDockerfile;
+import io.swagger.client.write.model.ToolVersion;
 import org.junit.Assert;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ClientTest {
@@ -41,6 +42,7 @@ public class ClientTest {
         Assert.assertTrue(!metadata.getCountry().isEmpty());
     }
 
+    @Ignore("Test is ignored until there are valid or mocked quay.io and github tokens")
     @Test
     public void postDescriptorAndCreateRepo() throws IOException, ApiException {
         // watch out, versions can't start with a "v"
