@@ -17,6 +17,8 @@ import io.swagger.client.write.model.ToolDescriptor;
 import io.swagger.client.write.model.ToolDockerfile;
 import io.swagger.client.write.model.ToolVersion;
 import json.Output;
+import org.skife.jdbi.v2.sqlobject.Transaction;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,16 +29,41 @@ import static io.dockstore.client.cli.ConfigFileHelper.getIniConfiguration;
  * @since 23/03/17
  */
 class Add {
-    // an organization for both GitHub and Quay.io where repos will be created (and deleted)
-    private static final Properties PROPERTIES = getIniConfiguration();
-    private static final String ORGANIZATION_NAME = PROPERTIES.getProperty("organization", "dockstore-testing");
-    // repo name for GitHub and Quay.io, this repo will be created and deleted
-    private static final String REPO_NAME = PROPERTIES.getProperty("repo", "test_repo3");
     private static final Logger LOGGER = LoggerFactory.getLogger(Add.class);
+    private static final Properties PROPERTIES;
+    private static final String ORGANIZATION_NAME;
+    // repo name for GitHub and Quay.io, this repo will be created and deleted
+    private static final String REPO_NAME;
+    // an organization for both GitHub and Quay.io where repos will be created (and deleted)
+    private static String config;
 
-    Add() {
+    static {
+        PROPERTIES = getIniConfiguration(getConfig());
+        ORGANIZATION_NAME = PROPERTIES.getProperty("organization", "dockstore-testing");
+        REPO_NAME = PROPERTIES.getProperty("repo", "test_repo3");
     }
 
+    Add(String config) {
+        setConfig(config);
+    }
+
+    public static String getConfig() {
+        return config;
+    }
+
+    public static void setConfig(String config) {
+        Add.config = config;
+    }
+
+    @Transaction
+    /**
+     * Handles the add command
+     *
+     * @param dockerfile          The dockerfile path
+     * @param descriptor          The descriptor path
+     * @param secondaryDescriptor The secondary descriptor path
+     * @param version             The version of the tool
+     */
     void handleAdd(String dockerfile, String descriptor, String secondaryDescriptor, String version) {
         // watch out, versions can't start with a "v"
         if (version == null) {
@@ -45,11 +72,6 @@ class Add {
         LOGGER.info("Handling add...");
         ToolDockerfile toolDockerfile = createToolDockerfile(dockerfile);
         ToolDescriptor toolDescriptor = createDescriptor(descriptor);
-        if (toolDockerfile == null) {
-            ExceptionHelper.errorMessage("Dockerfile is empty.", ExceptionHelper.CLIENT_ERROR);
-        } else if (toolDescriptor == null) {
-            ExceptionHelper.errorMessage("Descriptor is empty.", ExceptionHelper.CLIENT_ERROR);
-        }
         GAGHoptionalwriteApi api = WriteAPIServiceHelper.getGaghOptionalApi();
         Tool tool = createTool();
         Tool responseTool = null;
@@ -59,7 +81,7 @@ class Add {
             assert (responseTool.getOrganization().equals(ORGANIZATION_NAME));
             LOGGER.info("Created repository on git.");
         } catch (ApiException e) {
-            ExceptionHelper.errorMessage("Could not create repository: " + e.getMessage(), ExceptionHelper.CLIENT_ERROR);
+            ExceptionHelper.errorMessage(LOGGER, "Could not create repository: " + e.getMessage(), ExceptionHelper.API_ERROR);
         }
 
         // github repo has been created by now
@@ -71,7 +93,7 @@ class Add {
             assert (responseToolVersion != null);
             LOGGER.info("Created branch, tag, and release on git.");
         } catch (ApiException e) {
-            ExceptionHelper.errorMessage("Could not create tag/release: " + e.getMessage(), ExceptionHelper.CLIENT_ERROR);
+            ExceptionHelper.errorMessage(LOGGER, "Could not create tag/release: " + e.getMessage(), ExceptionHelper.API_ERROR);
         }
 
         // create dockerfile, this should trigger a quay.io build
@@ -82,7 +104,7 @@ class Add {
             assert (responseDockerfile != null);
             LOGGER.info("Created dockerfile on git.");
         } catch (ApiException e) {
-            ExceptionHelper.errorMessage("Could not create Dockerfile: " + e.getMessage(), ExceptionHelper.CLIENT_ERROR);
+            ExceptionHelper.errorMessage(LOGGER, "Could not create Dockerfile: " + e.getMessage(), ExceptionHelper.API_ERROR);
         }
 
         // Create descriptor file
@@ -95,7 +117,7 @@ class Add {
             assert (responseDescriptor != null);
             LOGGER.info("Created descriptor on git.");
         } catch (ApiException e) {
-            ExceptionHelper.errorMessage("Could not create descriptor file. " + e.getMessage(), ExceptionHelper.CLIENT_ERROR);
+            ExceptionHelper.errorMessage(LOGGER, "Could not create descriptor file. " + e.getMessage(), ExceptionHelper.API_ERROR);
         }
 
         // Create secondary descriptor file
@@ -108,7 +130,8 @@ class Add {
                 assert (responseSecondaryDescriptor != null);
                 LOGGER.info("Created secondary descriptor on git.");
             } catch (ApiException e) {
-                ExceptionHelper.errorMessage("Could not create secondary descriptor file" + e.getMessage(), ExceptionHelper.CLIENT_ERROR);
+                ExceptionHelper
+                        .errorMessage(LOGGER, "Could not create secondary descriptor file" + e.getMessage(), ExceptionHelper.API_ERROR);
             }
         }
 
@@ -143,15 +166,18 @@ class Add {
 
     private ToolDockerfile createToolDockerfile(String stringPath) {
         ToolDockerfile toolDockerfile = new ToolDockerfile();
-        Path path = Paths.get(stringPath);
-        String fileName = path.getFileName().toString();
+        Path path = Paths.get(stringPath).getFileName();
+        if (path == null) {
+            throw new RuntimeException("Could not get file path.");
+        }
+        String fileName = path.toString();
         try {
             String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
             toolDockerfile.setDockerfile(content);
             // Temporarily setting the url to the filename
             toolDockerfile.setUrl(fileName);
         } catch (IOException e) {
-            ExceptionHelper.errorMessage("Could not read dockerfile" + e.getMessage(), ExceptionHelper.CLIENT_ERROR);
+            ExceptionHelper.errorMessage(LOGGER, "Could not read dockerfile" + e.getMessage(), ExceptionHelper.IO_ERROR);
         }
         return toolDockerfile;
     }
@@ -159,15 +185,18 @@ class Add {
     private ToolDescriptor createDescriptor(String stringPath) {
         ToolDescriptor toolDescriptor = new ToolDescriptor();
         try {
-            Path path = Paths.get(stringPath);
-            String fileName = path.getFileName().toString();
+            Path path = Paths.get(stringPath).getFileName();
+            if (path == null) {
+                throw new RuntimeException("Could not get file path.");
+            }
+            String fileName = path.toString();
             String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
             toolDescriptor.setDescriptor(content);
             toolDescriptor.setType(ToolDescriptor.TypeEnum.CWL);
             // Temporarily setting the url to the filename, otherwise there's no way to pass it
             toolDescriptor.setUrl(fileName);
         } catch (IOException e) {
-            ExceptionHelper.errorMessage("Could not read descriptor file" + e.getMessage(), ExceptionHelper.CLIENT_ERROR);
+            ExceptionHelper.errorMessage(LOGGER, "Could not read descriptor file" + e.getMessage(), ExceptionHelper.IO_ERROR);
         }
         return toolDescriptor;
     }
