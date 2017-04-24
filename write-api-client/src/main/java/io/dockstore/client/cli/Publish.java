@@ -20,6 +20,7 @@ import io.swagger.client.model.PublishRequest;
 import io.swagger.client.model.Tag;
 import io.swagger.client.model.User;
 import json.Output;
+import org.skife.jdbi.v2.sqlobject.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,10 +32,18 @@ import static io.dockstore.client.cli.ConfigFileHelper.getIniConfiguration;
  */
 class Publish {
     private static final Logger LOGGER = LoggerFactory.getLogger(Publish.class);
+    private static String config;
 
-    Publish() {
+    Publish(String config) {
+        setConfig(config);
     }
 
+    /**
+     * Gets the Output object from the filepath
+     *
+     * @param filePath The path to the file containing json output from the add command
+     * @return The output object
+     */
     private static Output getJson(String filePath) {
         Output output = null;
         try {
@@ -43,14 +52,28 @@ class Publish {
             Gson gson = new Gson();
             output = gson.fromJson(content, Output.class);
         } catch (IOException e) {
-            ExceptionHelper.errorMessage("Could not read json file" + e.getMessage(), ExceptionHelper.CLIENT_ERROR);
+            ExceptionHelper.errorMessage(LOGGER, "Could not read json file" + e.getMessage(), ExceptionHelper.IO_ERROR);
         }
         return output;
     }
 
+    public static String getConfig() {
+        return config;
+    }
+
+    public static void setConfig(String config) {
+        Publish.config = config;
+    }
+
+    /**
+     * Handles the publish command
+     *
+     * @param tool The path of the file containing the json outputted by the add command
+     */
+    @Transaction
     void handlePublish(String tool) {
         LOGGER.info("Handling publish");
-        Properties prop = getIniConfiguration();
+        Properties prop = getIniConfiguration(config);
         String token = prop.getProperty("token", "");
         String serverUrl = prop.getProperty("server-url", "https://www.dockstore.org:8443");
         ApiClient defaultApiClient;
@@ -79,7 +102,7 @@ class Publish {
             dockstoreTool = containersApi.getContainerByToolPath("quay.io" + "/" + namespace + "/" + name);
             ContainertagsApi containertagsApi = new ContainertagsApi(defaultApiClient);
             List<Tag> tagsByPath = containertagsApi.getTagsByPath(dockstoreTool.getId());
-            Tag first = tagsByPath.parallelStream().filter(tag -> tag.getName().equals(output.getVersion())).findFirst().get();
+            Tag first = tagsByPath.parallelStream().filter(tag -> tag.getName().equals(output.getVersion())).findFirst().orElse(null);
             first.setReference(output.getVersion());
             containertagsApi.updateTags(dockstoreTool.getId(), tagsByPath);
             containersApi.refresh(dockstoreTool.getId());
