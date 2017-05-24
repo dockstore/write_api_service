@@ -68,10 +68,10 @@ public class Check {
                     if (valid) {
                         System.out.println("Tool properly registered and version is valid");
                     } else {
-                        System.out.println("Tool properly registered but version is not valid");
+                        System.out.println("Tool properly registered but version " + version + " is not valid");
                     }
                 } else {
-                    System.out.println("Tool version does not exist");
+                    System.out.println("Tool version: " + version + " does not exist");
                 }
             }
         } catch (io.swagger.client.ApiException e) {
