@@ -19,7 +19,7 @@
 
     <groupId>io.dockstore</groupId>
     <artifactId>write-api</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>write api</name>
@@ -52,7 +52,7 @@
         <connection>${github.url}</connection>
         <developerConnection>${github.url}</developerConnection>
         <url>${github.url}</url>
-        <tag>write-api-1.0.0</tag>
+        <tag>1.1</tag>
     </scm>
 
     <repositories>

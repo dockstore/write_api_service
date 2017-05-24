@@ -20,11 +20,11 @@
     <parent>
         <groupId>io.dockstore</groupId>
         <artifactId>write-api</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>write-api-service</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>write-api-service</name>
@@ -54,7 +54,7 @@
         <connection>${github.url}</connection>
         <developerConnection>${github.url}</developerConnection>
         <url>${github.url}</url>
-      <tag>write-api-1.0.0</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <repositories>
