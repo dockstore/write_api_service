@@ -64,15 +64,6 @@
         </license>
     </licenses>
 
-    <distributionManagement>
-        <repository>
-            <id>artifacts.oicr.on.ca</id>
-            <name>artifacts.oicr.on.ca-releases</name>
-            <url>https://artifacts.oicr.on.ca/artifactory/collab-release</url>
-            <uniqueVersion>false</uniqueVersion>
-        </repository>
-    </distributionManagement>
-
     <dependencies>
         <dependency>
             <groupId>com.beust</groupId>
