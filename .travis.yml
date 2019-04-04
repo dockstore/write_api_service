@@ -5,6 +5,10 @@ notifications:
     rooms:
     - oicr:S9k4EowgQv9AnbCfEZHSzCsg
 
+env:
+  global:
+    - WEBSERVICE_VERSION="1.6.0-beta.4"
+
 services:
   - postgresql
 
