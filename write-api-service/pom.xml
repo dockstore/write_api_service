@@ -957,7 +957,7 @@
                         </goals>
                         <configuration>
                             <inputSpec>
-                                https://raw.githubusercontent.com/ga4gh/tool-registry-schemas/feature/write_api_presentation/src/main/resources/swagger/ga4gh-tool-discovery.yaml
+                                https://raw.githubusercontent.com/ga4gh/tool-registry-service-schemas/2dc5f7a010adfcb65e78b0f3ba3e414727ac5189/src/main/resources/swagger/ga4gh-tool-discovery.yaml
                             </inputSpec>
                             <language>java</language>
                             <apiPackage>io.swagger.client.write.api</apiPackage>
@@ -975,7 +975,7 @@
                         </goals>
                         <configuration>
                             <inputSpec>
-                                https://raw.githubusercontent.com/ga4gh/tool-registry-schemas/feature/write_api_presentation/src/main/resources/swagger/ga4gh-tool-discovery.yaml
+                                https://raw.githubusercontent.com/ga4gh/tool-registry-service-schemas/2dc5f7a010adfcb65e78b0f3ba3e414727ac5189/src/main/resources/swagger/ga4gh-tool-discovery.yaml
                             </inputSpec>
                             <language>jaxrs</language>
                             <apiPackage>io.swagger.server.api</apiPackage>
